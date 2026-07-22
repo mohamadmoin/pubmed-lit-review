@@ -1,0 +1,43 @@
+# Environment
+.env
+*.env
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+*.sqlite3
+
+# Django runtime
+backend/db.sqlite3
+backend/media/
+backend/staticfiles/
+backend/logs/
+
+# Data & logs
+data/
+logs/
+!data/text_storage/.gitkeep
+!logs/.gitkeep
+
+# Flutter / Dart
+frontend/.dart_tool/
+frontend/.flutter-plugins
+frontend/.flutter-plugins-dependencies
+frontend/.packages
+frontend/build/
+frontend/.pub-cache/
+frontend/.pub/
+frontend/**/doc/api/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+.DS_Store
+
+# Docker
+*.log

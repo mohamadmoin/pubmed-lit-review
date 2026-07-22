@@ -1,0 +1,107 @@
+name: litreview
+
+services:
+  neo4j:
+    image: neo4j:5.15.0
+    container_name: litreview-neo4j
+    ports:
+      - "7475:7474"
+      - "7688:7687"
+    environment:
+      - NEO4J_AUTH=neo4j/${NEO4J_PASSWORD:-your_password}
+      - NEO4J_server_default__advertised__address=localhost
+      - NEO4J_server_default__listen__address=0.0.0.0
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+    networks:
+      - litreview_network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:7474 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7.2.4
+    container_name: litreview-redis
+    volumes:
+      - redis_data:/data
+    networks:
+      - litreview_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  django:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: litreview-app:latest
+    container_name: litreview-django
+    ports:
+      - "8002:8001"
+    env_file:
+      - .env
+    environment:
+      - DJANGO_SETTINGS_MODULE=litreview.settings
+      - NEO4J_URI=bolt://neo4j:7687
+      - NEO4J_USER=neo4j
+      - REDIS_URL=redis://redis:6379/0
+      - TEXT_STORAGE_PATH=/app/data/text_storage
+      - LM_STUDIO_BASE_URL=http://host.docker.internal:1234/v1
+    volumes:
+      - ./backend:/app
+      - ./data:/app/data
+      - ./logs:/app/logs
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      neo4j:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - litreview_network
+    restart: unless-stopped
+
+  celery:
+    image: litreview-app:latest
+    container_name: litreview-celery
+    command: celery -A litreview worker -l INFO --concurrency=2
+    env_file:
+      - .env
+    environment:
+      - DJANGO_SETTINGS_MODULE=litreview.settings
+      - NEO4J_URI=bolt://neo4j:7687
+      - NEO4J_USER=neo4j
+      - REDIS_URL=redis://redis:6379/0
+      - TEXT_STORAGE_PATH=/app/data/text_storage
+      - LM_STUDIO_BASE_URL=http://host.docker.internal:1234/v1
+    volumes:
+      - ./backend:/app
+      - ./data:/app/data
+      - ./logs:/app/logs
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      django:
+        condition: service_started
+      redis:
+        condition: service_healthy
+    networks:
+      - litreview_network
+    restart: unless-stopped
+
+volumes:
+  neo4j_data:
+  neo4j_logs:
+  redis_data:
+
+networks:
+  litreview_network:
+    driver: bridge

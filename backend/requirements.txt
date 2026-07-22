@@ -1,0 +1,21 @@
+# LitReview backend — pinned for reproducible Docker builds
+Django>=5.1.7,<5.2
+djangorestframework>=3.15.0
+django-cors-headers>=4.7.0
+django-celery-results>=2.5.1
+celery>=5.4.0
+redis>=5.2.0
+neo4j>=5.28.0
+drf-spectacular>=0.28.0
+python-dotenv>=1.0.1
+requests>=2.32.0
+openai>=1.66.0
+lxml>=5.3.0
+pymed>=0.8.9
+python-docx>=1.1.2
+scikit-learn>=1.6.0
+numpy>=2.2.0
+pandas>=2.2.0
+biopython>=1.85
+openpyxl>=3.1.5
+reportlab>=4.3.0
