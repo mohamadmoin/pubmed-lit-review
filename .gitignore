@@ -36,6 +36,7 @@ frontend/**/doc/api/
 # IDE
 .idea/
 .vscode/
+.cursor/
 *.iml
 .DS_Store
 
