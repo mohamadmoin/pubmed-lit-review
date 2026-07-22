@@ -18,8 +18,8 @@
 ## Quick start (Docker)
 
 ```bash
-git clone https://github.com/mohamadmoin/litreview.git
-cd litreview
+git clone https://github.com/mohamadmoin/pubmed-lit-review.git
+cd pubmed-lit-review
 cp .env.example .env
 # Edit .env: set PUBMED_EMAIL (required), NEO4J_PASSWORD, LLM settings
 
@@ -90,7 +90,7 @@ Set `LITREVIEW_API_URL` to override the default API base.
 ## Project structure
 
 ```
-litreview/
+pubmed-lit-review/
 ├── backend/          Django API + Celery + generation pipeline
 ├── frontend/         Flutter client
 ├── cli/              Command-line interface
