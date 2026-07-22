@@ -24,6 +24,12 @@ class _DocumentsListPageState extends State<DocumentsListPage> {
   @override
   void initState() {
     super.initState();
+    // Documents are preloaded during AppBootstrap; refresh when opening this page.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        Provider.of<DocumentProvider>(context, listen: false).refreshDocuments();
+      }
+    });
     // Refresh document list every 30 seconds
     _refreshTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
       if (mounted) {
@@ -48,7 +54,7 @@ class _DocumentsListPageState extends State<DocumentsListPage> {
         ),
         child: Consumer<DocumentProvider>(
           builder: (context, documentProvider, child) {
-            if (documentProvider.isLoading && documentProvider.documents.isEmpty) {
+            if (documentProvider.isLoadingList && documentProvider.documents.isEmpty) {
               return _buildLoadingView();
             }
 

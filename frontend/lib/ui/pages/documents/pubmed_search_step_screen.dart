@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/providers/document_provider.dart';
 import '../../../core/models/document_model.dart';
+import '../../widgets/documents/generation_step_activity.dart';
 
 class PubMedSearchStepScreen extends StatefulWidget {
   const PubMedSearchStepScreen({Key? key}) : super(key: key);
@@ -42,7 +43,20 @@ class _PubMedSearchStepScreenState extends State<PubMedSearchStepScreen> with Si
         ) ?? false;
 
         if (!isSearchCompleted) {
-          return _buildLoadingPlaceholder(context);
+          final hasPartialData = document != null &&
+              document.sections.any(
+                (s) => s.preFilteredPapers.isNotEmpty || s.filteredPapers.isNotEmpty,
+              );
+          if (!hasPartialData) {
+            return Padding(
+              padding: const EdgeInsets.all(24),
+              child: GenerationStepActivity(
+                stepSource: 'PubMed Search',
+                logs: logs,
+                workingMessage: 'Searching PubMed for relevant papers…',
+              ),
+            );
+          }
         }
 
         if (document == null || document.sections.isEmpty) {

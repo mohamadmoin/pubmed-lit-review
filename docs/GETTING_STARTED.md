@@ -156,6 +156,16 @@ After `flutter pub get` succeeds once, `./scripts/build-web.sh` should work.
 docker compose logs django celery
 ```
 
+### `no such table: django_celery_results_taskresult`
+
+Django and Celery must share the same SQLite database. Restart the stack so migrations run on both services:
+
+```bash
+docker compose up -d --build django celery
+```
+
+The database lives at `./data/db.sqlite3` (shared via the `./data` volume).
+
 ### LM Studio not reachable from Docker
 
 - Confirm the LM Studio server is started (green/running in the app)

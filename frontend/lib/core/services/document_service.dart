@@ -56,34 +56,96 @@ class DocumentService extends ChangeNotifier {
        _connectivityService = connectivityService ?? ConnectivityService(),
        _cacheService = cacheService ?? DocumentCacheService(),
        _authService = authService ?? AuthService();
+
+  /// Ensure a session exists (saved login or guest demo).
+  Future<bool> _ensureAuthenticated() async {
+    if (_authService.isAuthenticated) {
+      return true;
+    }
+    if (await _authService.tryAutoLogin()) {
+      return true;
+    }
+    if (AppConfig.autoGuestLogin) {
+      return _authService.loginAsGuest();
+    }
+    return false;
+  }
+
+  Future<Map<String, String>> _requestHeaders() async {
+    await _ensureAuthenticated();
+    return _authService.getAuthHeaders();
+  }
+
+  static const Duration _requestTimeout = Duration(seconds: 30);
+  static const Map<String, String> _jsonHeaders = {
+    'Content-Type': 'application/json',
+  };
+
+  Future<bool> _recoverFromUnauthorized() async {
+    await _authService.logout(revokeServerSession: false);
+    return _ensureAuthenticated();
+  }
+
+  Future<http.Response> _get(
+    Uri url, {
+    Map<String, String>? headers,
+    bool retryOn401 = true,
+  }) async {
+    final response =
+        await http.get(url, headers: headers).timeout(_requestTimeout);
+    if (retryOn401 && response.statusCode == 401) {
+      if (await _recoverFromUnauthorized()) {
+        return _get(
+          url,
+          headers: await _requestHeaders(),
+          retryOn401: false,
+        );
+      }
+    }
+    return response;
+  }
+
+  Future<http.Response> _post(
+    Uri url, {
+    Map<String, String>? headers,
+    Object? body,
+    bool retryOn401 = true,
+  }) async {
+    final response = await http
+        .post(url, headers: headers, body: body)
+        .timeout(_requestTimeout);
+    if (retryOn401 && response.statusCode == 401) {
+      if (await _recoverFromUnauthorized()) {
+        return _post(
+          url,
+          headers: await _requestHeaders(),
+          body: body,
+          retryOn401: false,
+        );
+      }
+    }
+    return response;
+  }
   
   /// Test API connection
   Future<bool> connect() async {
     if (_isConnected) return true;
-    
+
     try {
-      final response = await http.get(
-        Uri.parse('$_baseUrl/documents/status/'),
-        headers: _authService.getAuthHeaders(),
-      );
-      
-      if (response.statusCode == 200) {
-        _isConnected = true;
+      // Health check without auth — backend demo mode accepts anonymous requests.
+      final response = await http
+          .get(
+            Uri.parse('$_baseUrl/documents/status/'),
+            headers: _jsonHeaders,
+          )
+          .timeout(_requestTimeout);
+
+      // Any HTTP response means the API is reachable.
+      _isConnected = response.statusCode != 401 || await _recoverFromUnauthorized();
+      if (_isConnected) {
         notifyListeners();
-        return true;
-      } else if (response.statusCode == 401) {
-        // Unauthorized - try to auto login or return false
-        final isAuthed = await _authService.tryAutoLogin();
-        if (isAuthed) {
-          return await connect();
-        }
-        _isConnected = false;
-        return false;
-      } else {
-        debugPrint('Failed to connect to API, status code: ${response.statusCode}');
-        _isConnected = false;
-        return false;
       }
+      return _isConnected;
     } catch (e) {
       debugPrint('API connection error: $e');
       _isConnected = false;
@@ -99,19 +161,10 @@ class DocumentService extends ChangeNotifier {
     // If online, try to get documents from API
     if (isOnline) {
       try {
-        final response = await http.get(
+        final response = await _get(
           Uri.parse('$_baseUrl/documents/'),
-          headers: _authService.getAuthHeaders(),
+          headers: await _requestHeaders(),
         );
-        
-        if (response.statusCode == 401) {
-          // Unauthorized - try to auto login
-          final isAuthed = await _authService.tryAutoLogin();
-          if (isAuthed) {
-            return getAllDocuments();
-          }
-          throw Exception('Authentication required');
-        }
         
         if (response.statusCode != 200) {
           throw Exception('Failed to load documents, status code: ${response.statusCode}');
@@ -129,7 +182,7 @@ class DocumentService extends ChangeNotifier {
         return documents;
       } catch (e) {
         debugPrint('Error fetching documents: $e');
-        return [_generateMockDocument()];
+        return [];
       }
     } else {
       // If offline, get documents from cache
@@ -149,8 +202,7 @@ class DocumentService extends ChangeNotifier {
       debugPrint('Error retrieving cached documents: $e');
     }
     
-    // If cache is empty or error occurred, return mock document
-    return [_generateMockDocument()];
+    return [];
   }
   
   /// Get a document by ID
@@ -162,15 +214,13 @@ class DocumentService extends ChangeNotifier {
     }
     
     try {
-      final response = await http.get(
+      final response = await _get(
         Uri.parse('$_baseUrl/documents/$documentId/content/'),
-        headers: _authService.getAuthHeaders(),
+        headers: await _requestHeaders(),
       );
       
       if (response.statusCode == 401) {
-        // Unauthorized - try to auto login
-        final isAuthed = await _authService.tryAutoLogin();
-        if (isAuthed) {
+        if (await _ensureAuthenticated()) {
           return getDocument(documentId);
         }
         throw DocumentServiceException(
@@ -179,9 +229,9 @@ class DocumentService extends ChangeNotifier {
       }
       
       if (response.statusCode != 200) {
-        final fallbackResponse = await http.get(
+        final fallbackResponse = await _get(
           Uri.parse('$_baseUrl/documents/$documentId/'),
-          headers: _authService.getAuthHeaders(),
+          headers: await _requestHeaders(),
         );
         
         if (fallbackResponse.statusCode != 200) {
@@ -228,15 +278,14 @@ class DocumentService extends ChangeNotifier {
       throw Exception('Cannot generate document: Backend is not available');
     }
     
-    // Check if authenticated
-    if (!_authService.isAuthenticated) {
+    if (!await _ensureAuthenticated()) {
       throw Exception('Authentication required to generate document');
     }
     
     try {
-      final response = await http.post(
+      final response = await _post(
         Uri.parse('$_baseUrl/documents/generatedocument/'),
-        headers: _authService.getAuthHeaders(),
+        headers: await _requestHeaders(),
         body: jsonEncode({
           'subject': subject,
           'description': description,
@@ -245,6 +294,13 @@ class DocumentService extends ChangeNotifier {
       );
       
       if (response.statusCode == 401) {
+        if (await _ensureAuthenticated()) {
+          return generateDocument(
+            subject: subject,
+            description: description,
+            wordCount: wordCount,
+          );
+        }
         throw Exception('Authentication required to generate document');
       }
       
@@ -269,12 +325,15 @@ class DocumentService extends ChangeNotifier {
     }
     
     try {
-      final response = await http.get(
+      final response = await _get(
         Uri.parse('$_baseUrl/documents/generate/$requestId/status/'),
-        headers: _authService.getAuthHeaders(),
+        headers: await _requestHeaders(),
       );
       
       if (response.statusCode == 401) {
+        if (await _ensureAuthenticated()) {
+          return getGenerationStatus(requestId);
+        }
         throw Exception('Authentication required to check generation status');
       }
       
@@ -299,12 +358,15 @@ class DocumentService extends ChangeNotifier {
     }
     
     try {
-      final response = await http.get(
+      final response = await _get(
         Uri.parse('$_baseUrl/documents/$documentId/process_logs/'),
-        headers: _authService.getAuthHeaders(),
+        headers: await _requestHeaders(),
       );
       
       if (response.statusCode == 401) {
+        if (await _ensureAuthenticated()) {
+          return getDocumentProcessLogs(documentId);
+        }
         throw Exception('Authentication required to access process logs');
       }
       
@@ -496,12 +558,15 @@ class DocumentService extends ChangeNotifier {
       throw const DocumentServiceException('Cannot download document: Backend is not available');
     }
 
-    final response = await http.get(
+    final response = await _get(
       Uri.parse('$_baseUrl/documents/$documentId/download/'),
-      headers: _authService.getAuthHeaders(),
+      headers: await _requestHeaders(),
     );
 
     if (response.statusCode == 401) {
+      if (await _ensureAuthenticated()) {
+        return downloadDocument(documentId);
+      }
       throw const DocumentServiceException('Authentication required to download document');
     }
 
@@ -555,9 +620,9 @@ class DocumentService extends ChangeNotifier {
       throw const DocumentServiceException('Cannot fetch full text: Backend is not available');
     }
 
-    final response = await http.get(
+    final response = await _get(
       Uri.parse('$_baseUrl/documents/$documentId/papers/$pmid/full_text/'),
-      headers: _authService.getAuthHeaders(),
+      headers: await _requestHeaders(),
     );
 
     if (response.statusCode == 404) {

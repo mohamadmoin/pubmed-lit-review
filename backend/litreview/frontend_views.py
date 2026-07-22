@@ -39,7 +39,9 @@ def serve_frontend(request, path: str = ''):
     index = root / 'index.html'
     if not index.is_file():
         return HttpResponse(
-            'LitReview web app is missing index.html.',
+            'LitReview web app is missing index.html. '
+            'Run ./scripts/build-web.sh, then recreate the Django container: '
+            'docker compose up -d --force-recreate django',
             status=503,
             content_type='text/plain',
         )

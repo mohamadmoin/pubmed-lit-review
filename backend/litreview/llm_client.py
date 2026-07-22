@@ -64,20 +64,60 @@ def get_llm_client():
     return _client
 
 
+def _strip_markdown_fences(content: str) -> str:
+    content = content.strip()
+    if content.startswith('```'):
+        content = re.sub(r'^```(?:json)?\s*', '', content, flags=re.IGNORECASE)
+        content = re.sub(r'\s*```\s*$', '', content)
+    return content.strip()
+
+
+def _decode_first_json_value(text: str, start: int = 0):
+    """Parse the first JSON object/array in text, ignoring trailing content."""
+    decoder = json.JSONDecoder()
+    idx = start
+    while idx < len(text):
+        ch = text[idx]
+        if ch not in '{[':
+            idx += 1
+            continue
+        try:
+            obj, _end = decoder.raw_decode(text, idx)
+            return obj
+        except json.JSONDecodeError:
+            idx += 1
+    return None
+
+
 def _extract_json_from_text(content: str):
     if not content or not content.strip():
         raise ValueError('LLM returned empty content')
-    content = content.strip()
-    if content.startswith('```'):
-        content = re.sub(r'^```(?:json)?\s*', '', content)
-        content = re.sub(r'\s*```$', '', content)
+
+    content = _strip_markdown_fences(content)
+
     try:
         return json.loads(content)
     except json.JSONDecodeError:
-        match = re.search(r'\{[\s\S]*\}', content)
-        if match:
-            return json.loads(match.group())
-        raise
+        pass
+
+    obj = _decode_first_json_value(content)
+    if obj is not None:
+        return obj
+
+    fenced = re.search(r'```(?:json)?\s*([\s\S]*?)```', content, flags=re.IGNORECASE)
+    if fenced:
+        inner = fenced.group(1).strip()
+        try:
+            return json.loads(inner)
+        except json.JSONDecodeError:
+            obj = _decode_first_json_value(inner)
+            if obj is not None:
+                return obj
+
+    raise ValueError(
+        f'Could not parse JSON from LLM response (length={len(content)}, '
+        f'preview={content[:200]!r})'
+    )
 
 
 def _extract_final_text_from_reasoning(reasoning: str) -> str:

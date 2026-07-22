@@ -184,8 +184,8 @@ class AuthService extends ChangeNotifier {
   }
 
   /// Start a shared demo session (open-source local default).
-  Future<bool> loginAsGuest() async {
-    if (!AppConfig.autoGuestLogin) {
+  Future<bool> loginAsGuest({bool force = false}) async {
+    if (!force && !AppConfig.autoGuestLogin) {
       return false;
     }
 
@@ -193,10 +193,12 @@ class AuthService extends ChangeNotifier {
     _error = null;
 
     try {
-      final response = await http.post(
-        Uri.parse('$_baseUrl/demo/'),
-        headers: {'Content-Type': 'application/json'},
-      );
+      final response = await http
+          .post(
+            Uri.parse('$_baseUrl/demo/'),
+            headers: {'Content-Type': 'application/json'},
+          )
+          .timeout(const Duration(seconds: 15));
 
       if (response.statusCode != 200) {
         _error = 'Guest access is unavailable on this server.';
@@ -204,7 +206,8 @@ class AuthService extends ChangeNotifier {
         return false;
       }
 
-      final Map<String, dynamic> responseData = jsonDecode(utf8.decode(response.bodyBytes));
+      final Map<String, dynamic> responseData =
+          jsonDecode(utf8.decode(response.bodyBytes));
       await _applyAuthSession(responseData, guest: true);
       _setLoading(false);
       return true;
@@ -218,11 +221,9 @@ class AuthService extends ChangeNotifier {
 
   /// Restore saved session, then fall back to guest access when enabled.
   Future<void> bootstrapAuth() async {
-    if (!isAuthenticated) {
-      await tryAutoLogin();
-    }
+    await tryAutoLogin();
     if (!isAuthenticated && AppConfig.autoGuestLogin) {
-      await loginAsGuest();
+      await loginAsGuest(force: true);
     }
   }
 

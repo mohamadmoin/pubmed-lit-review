@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 
+import '../utils/parse_timestamp.dart';
+
 class Author {
   final String lastname;
   final String firstname;
@@ -600,7 +602,7 @@ class ProcessLogEntry {
    
     return ProcessLogEntry(
       id: json['id'] ?? '',
-      timestamp: DateTime.parse(json['timestamp'] ?? DateTime.now().toIso8601String()),
+      timestamp: parseFlexibleTimestamp(json['timestamp']),
       message: json['message'],
       level: json['level'],
       source: json['source'],

@@ -83,15 +83,8 @@ def _get_message_content(response):
 
 
 def _parse_json_response(text: str):
-    try:
-        from litreview.llm_client import parse_json_response
-        return parse_json_response(text)
-    except Exception:
-        content = text.strip()
-        if content.startswith('```'):
-            content = re.sub(r'^```(?:json)?\s*', '', content)
-            content = re.sub(r'\s*```$', '', content)
-        return json.loads(content)
+    from litreview.llm_client import parse_json_response
+    return parse_json_response(text)
 
 
 def _normalize_document_structure(data: dict, subject: str) -> dict:

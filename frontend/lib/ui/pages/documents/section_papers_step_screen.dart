@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../core/providers/document_provider.dart';
 import '../../../core/models/document_model.dart';
 import '../../../core/services/document_generation_tracker.dart';
+import '../../widgets/documents/generation_step_activity.dart';
 import '../../widgets/documents/paper_full_text_view.dart';
 
 enum SectionPaperViewMode {
@@ -86,7 +87,20 @@ class _SectionPapersStepScreenState extends State<SectionPapersStepScreen> {
         final logs = documentProvider.generationLogs;
 
         if (!_isStepCompleted(logs)) {
-          return _buildLoading(context, theme);
+          final hasPartialData = document != null &&
+              document.sections.any(
+                (s) => _papersForSection(s).isNotEmpty,
+              );
+          if (!hasPartialData) {
+            return Padding(
+              padding: const EdgeInsets.all(24),
+              child: GenerationStepActivity(
+                stepSource: widget.stepLogSource,
+                logs: logs,
+                workingMessage: '${widget.stepLogSource} in progress…',
+              ),
+            );
+          }
         }
 
         if (document == null || document.sections.isEmpty) {

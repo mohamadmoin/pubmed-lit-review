@@ -33,3 +33,10 @@ cp -R build/web/. "$OUTPUT/"
 
 echo "Web app built to backend/frontend_dist/"
 echo "Start the stack with ./scripts/start.sh or docker compose up -d --build"
+
+if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
+  if docker ps --format '{{.Names}}' 2>/dev/null | grep -qx 'litreview-django'; then
+    echo "Refreshing Django container so it picks up the new web build..."
+    docker compose -f "$ROOT/docker-compose.yml" up -d --force-recreate django
+  fi
+fi

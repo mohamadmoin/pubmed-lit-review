@@ -39,10 +39,16 @@ fi
 if [[ ! -f backend/frontend_dist/index.html ]]; then
   echo "Building web app..."
   "$ROOT/scripts/build-web.sh"
+  RECREATE_DJANGO=1
 fi
 
 echo "Starting services..."
-docker compose up -d --build
+if [[ "${RECREATE_DJANGO:-0}" == "1" ]]; then
+  docker compose up -d --build --force-recreate django
+  docker compose up -d celery
+else
+  docker compose up -d --build
+fi
 
 echo
 echo "Waiting for LitReview to become ready..."

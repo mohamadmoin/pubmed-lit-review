@@ -6,6 +6,8 @@ import '../../../core/models/document_model.dart';
 import '../../widgets/step_process/step_process.dart';
 import 'pubmed_search_step_screen.dart';
 import 'section_papers_step_screen.dart';
+import '../../widgets/documents/generation_step_activity.dart';
+import '../../widgets/documents/document_markdown_body.dart';
 import 'document_preview_screen.dart';
 
 class DocumentGenerationProgressScreen extends StatefulWidget {
@@ -18,6 +20,19 @@ class DocumentGenerationProgressScreen extends StatefulWidget {
 class _DocumentGenerationProgressScreenState extends State<DocumentGenerationProgressScreen> {
   // Track if we've shown a completed message
   bool _hasShownCompletionMessage = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final provider = context.read<DocumentProvider>();
+      final documentId = provider.generatingDocumentId;
+      if (documentId != null) {
+        provider.loadDocument(documentId, showLoading: false);
+      }
+    });
+  }
 
   bool _isLogStepCompleted(ProcessLog log) {
     final message = log.message.toLowerCase();
@@ -380,7 +395,14 @@ class _DocumentGenerationProgressScreenState extends State<DocumentGenerationPro
               // Show loading placeholder until structure is completed
               if (!isStructureCompleted) ...[
                 Expanded(
-                  child: _buildLoadingPlaceholder(context),
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: GenerationStepActivity(
+                      stepSource: 'Document Structure',
+                      logs: logs,
+                      workingMessage: 'Planning document structure…',
+                    ),
+                  ),
                 ),
               ] else if (document != null) ...[
                 _buildDocumentHeader(context, document, step),
@@ -1088,9 +1110,11 @@ class _DocumentGenerationProgressScreenState extends State<DocumentGenerationPro
                 ),
               ),
               const SizedBox(height: 16),
-              Text(
-                section.content,
-                style: Theme.of(context).textTheme.bodyLarge,
+              DocumentMarkdownBody(
+                content: section.content,
+                document: document,
+                documentId: document.id,
+                paragraphStyle: Theme.of(context).textTheme.bodyLarge,
               ),
               const SizedBox(height: 24),
             ],

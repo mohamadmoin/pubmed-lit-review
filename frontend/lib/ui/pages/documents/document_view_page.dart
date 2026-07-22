@@ -30,7 +30,7 @@ class _DocumentViewPageState extends State<DocumentViewPage> {
     // Load the document when the page is initialized
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<DocumentProvider>(context, listen: false)
-          .loadDocument(widget.documentId);
+          .loadDocument(widget.documentId, showLoading: true);
     });
   }
 
@@ -44,7 +44,7 @@ class _DocumentViewPageState extends State<DocumentViewPage> {
         ),
         child: Consumer<DocumentProvider>(
           builder: (context, documentProvider, child) {
-            if (documentProvider.isLoading) {
+            if (documentProvider.isLoadingDocument) {
               return _buildLoadingView();
             }
 
@@ -116,7 +116,7 @@ class _DocumentViewPageState extends State<DocumentViewPage> {
           ElevatedButton(
             onPressed: () {
               Provider.of<DocumentProvider>(context, listen: false)
-                  .loadDocument(widget.documentId);
+                  .loadDocument(widget.documentId, showLoading: true);
             },
             child: Text('Retry'),
           ),

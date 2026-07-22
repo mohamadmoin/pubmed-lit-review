@@ -25,3 +25,14 @@ xcopy /E /I /Y build\web\* "%OUTPUT%\" >nul
 
 echo Web app built to backend\frontend_dist\
 echo Start the stack with scripts\start.bat or docker compose up -d --build
+
+where docker >nul 2>&1
+if not errorlevel 1 (
+  docker info >nul 2>&1
+  if not errorlevel 1 (
+    for /f "delims=" %%i in ('docker ps --format "{{.Names}}" 2^>nul ^| findstr /x "litreview-django"') do (
+      echo Refreshing Django container so it picks up the new web build...
+      docker compose -f "%ROOT%\docker-compose.yml" up -d --force-recreate django
+    )
+  )
+)

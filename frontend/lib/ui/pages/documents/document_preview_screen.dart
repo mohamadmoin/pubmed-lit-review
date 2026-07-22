@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/providers/document_provider.dart';
 import '../../../core/models/document_model.dart';
-import '../../widgets/documents/citation_rich_text.dart';
+import '../../widgets/documents/document_markdown_body.dart';
 import '../../widgets/documents/generated_document_download.dart';
 import '../../widgets/documents/paper_citation_sheet.dart';
 import '../../../core/utils/document_citation_resolver.dart';
@@ -35,7 +35,7 @@ class _DocumentPreviewScreenState extends State<DocumentPreviewScreen> {
     // Load the document when the page is initialized
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<DocumentProvider>(context, listen: false)
-          .loadDocument(widget.documentId);
+          .loadDocument(widget.documentId, showLoading: true);
     });
   }
 
@@ -144,9 +144,14 @@ class _DocumentPreviewScreenState extends State<DocumentPreviewScreen> {
 
                   // Document content
                   SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: _buildDocumentContent(context, document),
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 860),
+                        child: Padding(
+                          padding: const EdgeInsets.all(24),
+                          child: _buildDocumentContent(context, document),
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -185,31 +190,53 @@ class _DocumentPreviewScreenState extends State<DocumentPreviewScreen> {
         ),
         const SizedBox(height: 32),
         ...document.sections.expand((section) => [
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12, top: 8),
-                child: Text(
-                  section.title,
-                  style: theme.textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.primary,
+              Container(
+                width: double.infinity,
+                margin: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surface,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: theme.colorScheme.outline.withValues(alpha: 0.12),
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: theme.colorScheme.shadow.withValues(alpha: 0.04),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      section.title,
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.primary,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    if (section.content.trim().isNotEmpty)
+                      DocumentMarkdownBody(
+                        content: section.content,
+                        document: document,
+                        documentId: document.id,
+                        paragraphStyle: theme.textTheme.bodyLarge?.copyWith(height: 1.65),
+                      )
+                    else
+                      Text(
+                        'No content generated for this section.',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                        ),
+                      ),
+                  ],
                 ),
               ),
-              if (section.content.trim().isNotEmpty)
-                CitationRichText(
-                  content: section.content,
-                  document: document,
-                  documentId: document.id,
-                  style: theme.textTheme.bodyLarge?.copyWith(height: 1.65),
-                )
-              else
-                Text(
-                  'No content generated for this section.',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurface.withOpacity(0.6),
-                  ),
-                ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 16),
             ]),
         if (document.references.isNotEmpty) ...[
           const SizedBox(height: 16),
@@ -270,12 +297,11 @@ class _DocumentPreviewScreenState extends State<DocumentPreviewScreen> {
     final headings = <Map<String, dynamic>>[];
 
     for (final line in lines) {
-      if (line.startsWith('##')) {
-        final level = line.split(' ').first.length;
-        final title = line.substring(level).trim();
+      final heading = RegExp(r'^(#{1,6})\s+(.*)$').firstMatch(line.trim());
+      if (heading != null) {
         headings.add({
-          'level': level,
-          'title': title,
+          'level': heading.group(1)!.length,
+          'title': heading.group(2)!.trim(),
         });
       }
     }

@@ -73,7 +73,9 @@ services:
   celery:
     image: litreview-app:latest
     container_name: litreview-celery
-    command: celery -A litreview worker -l INFO --concurrency=2
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             celery -A litreview worker -l INFO --concurrency=2"
     env_file:
       - .env
     environment:

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 
+import '../utils/parse_timestamp.dart';
 import 'document_service.dart';
 
 /// Status of a document generation request
@@ -102,7 +103,7 @@ class ProcessLog {
   factory ProcessLog.fromJson(Map<String, dynamic> json) {
     return ProcessLog(
       id: json['id'] ?? '',
-      timestamp: DateTime.parse(json['timestamp'] ?? DateTime.now().toIso8601String()),
+      timestamp: parseFlexibleTimestamp(json['timestamp']),
       message: json['message'] ?? '',
       level: json['level'] ?? '',
       source: json['source'] ?? '',

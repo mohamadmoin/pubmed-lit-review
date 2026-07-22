@@ -63,10 +63,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'litreview.wsgi.application'
 
+TEXT_STORAGE_PATH = os.getenv('TEXT_STORAGE_PATH', str(BASE_DIR / 'data' / 'text_storage'))
+DATA_DIR = Path(os.getenv('LITREVIEW_DATA_DIR', TEXT_STORAGE_PATH)).parent
+os.makedirs(DATA_DIR, exist_ok=True)
+os.makedirs(TEXT_STORAGE_PATH, exist_ok=True)
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': DATA_DIR / 'db.sqlite3',
     }
 }
 
@@ -101,7 +106,8 @@ CORS_ALLOW_CREDENTIALS = True
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
+        'authentication.authentication.DemoAwareTokenAuthentication',
+        'authentication.authentication.DemoAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
@@ -157,9 +163,6 @@ NEO4J_CLIENT_CONFIG = {
     'connection_timeout': 5,
     'keep_alive': True,
 }
-
-TEXT_STORAGE_PATH = os.getenv('TEXT_STORAGE_PATH', str(BASE_DIR / 'data' / 'text_storage'))
-os.makedirs(TEXT_STORAGE_PATH, exist_ok=True)
 
 # Celery
 CELERY_BROKER_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/0')

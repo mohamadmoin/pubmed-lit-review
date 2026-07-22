@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'core/providers/document_provider.dart';
 import 'core/services/auth_service.dart';
+import 'core/services/api_service.dart';
 import 'app.dart';
 
-/// Boots auth (saved session or guest) before showing the main app.
+/// Boots guest auth, then shows the main app.
 class AppBootstrap extends StatefulWidget {
   const AppBootstrap({super.key});
 
@@ -18,7 +20,31 @@ class _AppBootstrapState extends State<AppBootstrap> {
   @override
   void initState() {
     super.initState();
-    _bootstrapFuture = context.read<AuthService>().bootstrapAuth();
+    _bootstrapFuture = _bootstrap();
+  }
+
+  Future<void> _bootstrap() async {
+    final auth = context.read<AuthService>();
+    try {
+      await auth.bootstrapAuth().timeout(const Duration(seconds: 20));
+    } catch (e) {
+      debugPrint('Auth bootstrap failed: $e');
+    }
+
+    if (auth.token != null) {
+      ApiService().setAuthToken(auth.token!);
+    }
+
+    if (mounted) {
+      try {
+        await context
+            .read<DocumentProvider>()
+            .loadAllDocuments()
+            .timeout(const Duration(seconds: 45));
+      } catch (e) {
+        debugPrint('Initial document load failed: $e');
+      }
+    }
   }
 
   @override

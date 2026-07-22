@@ -3,6 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
 import 'core/config/app_config.dart';
+import 'core/providers/document_provider.dart';
 import 'core/services/api_service.dart';
 import 'core/services/auth_service.dart';
 import 'core/theme/theme.dart';
@@ -17,14 +18,16 @@ import 'ui/screens/register_screen.dart';
 class LitReviewApp extends StatelessWidget {
   const LitReviewApp({super.key});
 
+  bool _canUseApp(AuthService auth) {
+    return auth.isAuthenticated || AppConfig.autoGuestLogin;
+  }
+
   @override
   Widget build(BuildContext context) {
     final authService = context.watch<AuthService>();
 
     if (authService.isAuthenticated && authService.token != null) {
       ApiService().setAuthToken(authService.token!);
-    } else {
-      ApiService().clearAuthToken();
     }
 
     return MaterialApp(
@@ -37,7 +40,7 @@ class LitReviewApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
       ],
       supportedLocales: const [Locale('en')],
-      home: authService.isAuthenticated
+      home: _canUseApp(authService)
           ? const DocumentsListPage()
           : const LoginScreen(),
       routes: {

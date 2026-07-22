@@ -4,7 +4,7 @@ import '../../../core/models/document_model.dart';
 import '../../../core/utils/document_citation_resolver.dart';
 import 'paper_citation_sheet.dart';
 
-/// Renders document body text with clickable numbered citations.
+/// Renders document body text with markdown inline styles and clickable citations.
 class CitationRichText extends StatefulWidget {
   final String content;
   final AIGeneratedDocument document;
@@ -12,12 +12,12 @@ class CitationRichText extends StatefulWidget {
   final String? documentId;
 
   const CitationRichText({
-    Key? key,
+    super.key,
     required this.content,
     required this.document,
     this.style,
     this.documentId,
-  }) : super(key: key);
+  });
 
   @override
   State<CitationRichText> createState() => _CitationRichTextState();
@@ -47,47 +47,73 @@ class _CitationRichTextState extends State<CitationRichText> {
       color: theme.colorScheme.primary,
       fontWeight: FontWeight.w700,
       decoration: TextDecoration.underline,
-      decorationColor: theme.colorScheme.primary.withOpacity(0.5),
+      decorationColor: theme.colorScheme.primary.withValues(alpha: 0.5),
     );
 
     _recognizers.clear();
+    final spans = _buildInlineSpans(normalized, bodyStyle, citationStyle, resolver);
+
+    return SelectableText.rich(TextSpan(children: spans));
+  }
+
+  List<InlineSpan> _buildInlineSpans(
+    String text,
+    TextStyle bodyStyle,
+    TextStyle citationStyle,
+    DocumentCitationResolver resolver,
+  ) {
     final spans = <InlineSpan>[];
-    final pattern = RegExp(r'\[(\d+)\]');
+    final pattern = RegExp(r'(\[\d+\]|\*\*.+?\*\*|(?<!\*)\*([^*]+?)\*(?!\*))');
     var lastIndex = 0;
 
-    for (final match in pattern.allMatches(normalized)) {
+    for (final match in pattern.allMatches(text)) {
       if (match.start > lastIndex) {
         spans.add(TextSpan(
-          text: normalized.substring(lastIndex, match.start),
+          text: text.substring(lastIndex, match.start),
           style: bodyStyle,
         ));
       }
 
-      final number = int.parse(match.group(1)!);
-      final recognizer = TapGestureRecognizer()
-        ..onTap = () => showPaperCitationSheet(
-              context,
-              citationNumber: number,
-              resolver: resolver,
-              documentId: widget.documentId ?? widget.document.id,
-            );
-      _recognizers.add(recognizer);
+      final token = match.group(0)!;
+      if (token.startsWith('[') && token.endsWith(']')) {
+        final number = int.parse(token.substring(1, token.length - 1));
+        final recognizer = TapGestureRecognizer()
+          ..onTap = () => showPaperCitationSheet(
+                context,
+                citationNumber: number,
+                resolver: resolver,
+                documentId: widget.documentId ?? widget.document.id,
+              );
+        _recognizers.add(recognizer);
+        spans.add(TextSpan(
+          text: token,
+          style: citationStyle,
+          recognizer: recognizer,
+        ));
+      } else if (token.startsWith('**') && token.endsWith('**')) {
+        spans.add(TextSpan(
+          text: token.substring(2, token.length - 2),
+          style: bodyStyle.copyWith(fontWeight: FontWeight.bold),
+        ));
+      } else if (token.startsWith('*') && token.endsWith('*') && !token.startsWith('**')) {
+        spans.add(TextSpan(
+          text: token.substring(1, token.length - 1),
+          style: bodyStyle.copyWith(fontStyle: FontStyle.italic),
+        ));
+      } else {
+        spans.add(TextSpan(text: token, style: bodyStyle));
+      }
 
-      spans.add(TextSpan(
-        text: match.group(0),
-        style: citationStyle,
-        recognizer: recognizer,
-      ));
       lastIndex = match.end;
     }
 
-    if (lastIndex < normalized.length) {
+    if (lastIndex < text.length) {
       spans.add(TextSpan(
-        text: normalized.substring(lastIndex),
+        text: text.substring(lastIndex),
         style: bodyStyle,
       ));
     }
 
-    return SelectableText.rich(TextSpan(children: spans));
+    return spans;
   }
 }

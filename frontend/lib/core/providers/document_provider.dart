@@ -9,7 +9,8 @@ class DocumentProvider extends ChangeNotifier {
   
   AIGeneratedDocument? _currentDocument;
   List<AIGeneratedDocument> _documents = [];
-  bool _isLoading = false;
+  bool _isLoadingList = false;
+  bool _isLoadingDocument = false;
   String? _error;
   String? _selectedSectionId;
   String? _selectedPaperId;
@@ -25,11 +26,15 @@ class DocumentProvider extends ChangeNotifier {
   int? _totalGenerationSteps;
   int? _currentGenerationStep;
   String? _generatingDocumentId;
+  DateTime? _lastGenerationDocRefresh;
+  int _lastGenerationLogCount = 0;
 
   // Getters
   AIGeneratedDocument? get currentDocument => _currentDocument;
   List<AIGeneratedDocument> get documents => _documents;
-  bool get isLoading => _isLoading;
+  bool get isLoading => _isLoadingList;
+  bool get isLoadingList => _isLoadingList;
+  bool get isLoadingDocument => _isLoadingDocument;
   bool get isGenerating => _isGenerating;
   String? get error => _error;
   String? get generationStatusMessage => _generationStatusMessage;
@@ -45,13 +50,11 @@ class DocumentProvider extends ChangeNotifier {
 
   // Constructor - inject the document service
   DocumentProvider({DocumentService? documentService}) 
-      : _documentService = documentService ?? DocumentService() {
-    loadAllDocuments();
-  }
+      : _documentService = documentService ?? DocumentService();
 
   // Method to load all documents
   Future<void> loadAllDocuments() async {
-    _setLoading(true);
+    _setLoadingList(true);
     try {
       final allDocuments = await _documentService.getAllDocuments();
       _documents = allDocuments;
@@ -59,34 +62,42 @@ class DocumentProvider extends ChangeNotifier {
     } catch (e) {
       _error = 'Failed to load documents: ${e.toString()}';
       debugPrint(_error);
+      _documents = [];
     } finally {
-      _setLoading(false);
+      _setLoadingList(false);
     }
   }
 
-  // Method to load a document
-  Future<void> loadDocument(String documentId) async {
-    _setLoading(true);
+  Future<void> loadDocument(String documentId, {bool showLoading = false}) async {
+    if (showLoading) {
+      _setLoadingDocument(true);
+    }
     try {
       final document = await _documentService.getDocument(documentId);
       _currentDocument = document;
       _error = null;
-      
-      // Auto-select the first section if available
+
       if (document.sections.isNotEmpty && _selectedSectionId == null) {
         _selectedSectionId = document.sections.first.id;
       }
+      notifyListeners();
     } catch (e) {
       _error = 'Failed to load document: ${e.toString()}';
       debugPrint(_error);
     } finally {
-      _setLoading(false);
+      if (showLoading) {
+        _setLoadingDocument(false);
+      }
     }
   }
 
-  // Set loading state
-  void _setLoading(bool loading) {
-    _isLoading = loading;
+  void _setLoadingList(bool loading) {
+    _isLoadingList = loading;
+    notifyListeners();
+  }
+
+  void _setLoadingDocument(bool loading) {
+    _isLoadingDocument = loading;
     notifyListeners();
   }
   
@@ -212,36 +223,30 @@ class DocumentProvider extends ChangeNotifier {
     required String description,
     required int wordCount,
   }) async {
-    _setLoading(true);
     _setGenerating(true, 'Starting document generation...');
-    
+
     try {
-      debugPrint('Generating document: $subject, $description, $wordCount words');
-      
       final response = await _documentService.generateDocument(
         subject: subject,
         description: description,
         wordCount: wordCount,
       );
-      
-      // Store the document ID for tracking
-      final String documentId = response['document_id'] ?? response['id'].toString();
+
+      final documentId = response['document_id']?.toString();
+      if (documentId == null || documentId.isEmpty) {
+        throw Exception('Server did not return a document id');
+      }
+
       _generatingDocumentId = documentId;
-      
-      // Add a small delay before starting to track progress
-      // This gives the backend time to create the initial document
-      await Future.delayed(const Duration(seconds: 2));
-      
-      // Start tracking the generation progress
+      _lastGenerationDocRefresh = null;
+      _lastGenerationLogCount = 0;
+      loadDocument(documentId, showLoading: false);
       _trackGenerationProgress(documentId);
-      
       _error = null;
-      _setLoading(false);
     } catch (e) {
       debugPrint('Error generating document: $e');
       _error = e.toString();
       _setGenerating(false);
-      _setLoading(false);
       rethrow;
     }
   }
@@ -272,21 +277,36 @@ class DocumentProvider extends ChangeNotifier {
       update.message ?? 'Processing document...',
     );
 
-    if (update.documentId != null) {
-        loadDocument(update.documentId!);
-      }
-    
-    if (update.isComplete) {
-      // Refresh documents to include the new one
-      refreshDocuments();
-      
-      // If document ID is provided, load it
-      
+    final documentId = update.documentId ?? _generatingDocumentId;
+    if (documentId != null) {
+      _maybeRefreshDocumentDuringGeneration(documentId, update.logs?.length ?? 0);
     }
-    
+
+    if (update.isComplete && update.documentId != null) {
+      loadDocument(update.documentId!, showLoading: false);
+      refreshDocuments();
+      _lastGenerationDocRefresh = null;
+      _lastGenerationLogCount = 0;
+    }
+
     if (update.isFailed) {
       _error = update.errorMessage ?? 'Document generation failed';
     }
+  }
+
+  void _maybeRefreshDocumentDuringGeneration(String documentId, int logCount) {
+    final now = DateTime.now();
+    final logsChanged = logCount > _lastGenerationLogCount;
+    final timedOut = _lastGenerationDocRefresh == null ||
+        now.difference(_lastGenerationDocRefresh!) > const Duration(seconds: 3);
+
+    if (!logsChanged && !timedOut) {
+      return;
+    }
+
+    _lastGenerationLogCount = logCount;
+    _lastGenerationDocRefresh = now;
+    loadDocument(documentId, showLoading: false);
   }
   
   // Cancel document generation tracking

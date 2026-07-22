@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import '../../../core/models/document_model.dart';
 import '../../../core/providers/document_provider.dart';
 import '../../../core/theme/colors.dart';
-import '../../widgets/documents/citation_rich_text.dart';
+import '../../widgets/documents/document_markdown_body.dart';
 import '../../widgets/documents/paper_citation_sheet.dart';
 import '../../../core/utils/document_citation_resolver.dart';
 
@@ -88,11 +88,11 @@ class DocumentContentView extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            CitationRichText(
+            DocumentMarkdownBody(
               content: section.content,
               document: document,
               documentId: document.id,
-              style: AppFonts.inter(
+              paragraphStyle: AppFonts.inter(
                 color: AppColors.primaryText,
                 fontSize: 16,
                 height: 1.6,
