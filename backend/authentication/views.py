@@ -6,6 +6,33 @@ from rest_framework.settings import api_settings
 from rest_framework.views import APIView
 
 from .serializers import AuthTokenSerializer, UserSerializer
+from .demo import demo_mode_enabled, ensure_demo_user
+
+
+class DemoSessionView(APIView):
+    """Issue a token for the shared local demo user (open-source default)."""
+
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        if not demo_mode_enabled():
+            return Response(
+                {'error': 'Demo mode is disabled on this server.'},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        user = ensure_demo_user()
+        token, _ = Token.objects.get_or_create(user=user)
+        return Response(
+            {
+                'token': token.key,
+                'user_id': user.pk,
+                'username': user.username,
+                'email': user.email,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+                'guest': True,
+            }
+        )
 
 
 class CreateUserView(generics.CreateAPIView):

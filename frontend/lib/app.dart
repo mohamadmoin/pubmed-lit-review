@@ -45,13 +45,7 @@ class LitReviewApp extends StatelessWidget {
         '/register': (_) => const RegisterScreen(),
         '/documents': (_) => const DocumentsListPage(),
         '/document/generate': (_) => const DocumentGenerationPage(),
-        '/document/progress': (ctx) {
-          final args = ModalRoute.of(ctx)!.settings.arguments as Map<String, dynamic>?;
-          return DocumentGenerationProgressScreen(
-            documentId: args?['documentId'] as String? ?? '',
-            subject: args?['subject'] as String? ?? '',
-          );
-        },
+        '/document/progress': (_) => const DocumentGenerationProgressScreen(),
         '/document': (ctx) {
           final args = ModalRoute.of(ctx)!.settings.arguments;
           if (args is String) {

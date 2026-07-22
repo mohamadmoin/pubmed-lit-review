@@ -1,0 +1,16 @@
+# Development overrides — live-reload backend code inside containers.
+# Usage: docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+
+services:
+  django:
+    volumes:
+      - ./backend:/app
+      - ./backend/frontend_dist:/app/frontend_dist:ro
+      - ./data:/app/data
+      - ./logs:/app/logs
+
+  celery:
+    volumes:
+      - ./backend:/app
+      - ./data:/app/data
+      - ./logs:/app/logs

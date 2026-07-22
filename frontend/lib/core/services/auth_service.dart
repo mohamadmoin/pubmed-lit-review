@@ -4,13 +4,14 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart';
+import 'package:litreview_app/core/config/app_config.dart';
 import 'package:litreview_app/core/models/user_model.dart';
 import 'package:litreview_app/core/services/api_service.dart';
 
 /// Authentication service for handling user login/registration and token management
 class AuthService extends ChangeNotifier {
   /// API base URL for authentication endpoints
-  static final String _baseUrl = 'http://127.0.0.1:8002/api/auth';
+  static String get _baseUrl => '${AppConfig.current.apiBaseUrl}/auth';
   
   /// Current authentication token
   String? _token;
@@ -26,6 +27,9 @@ class AuthService extends ChangeNotifier {
 
   /// Current user model when authenticated
   UserModel? _currentUser;
+  
+  /// Whether the current session is the shared demo/guest account
+  bool _isGuest = false;
   
   /// Whether the authentication status is being checked
   bool _isLoading = false;
@@ -45,6 +49,9 @@ class AuthService extends ChangeNotifier {
   
   /// Whether user is authenticated
   bool get isAuthenticated => _token != null;
+
+  /// Whether the current session uses the shared demo account
+  bool get isGuest => _isGuest;
   
   /// Get the current token
   String? get token => _token;
@@ -76,10 +83,7 @@ class AuthService extends ChangeNotifier {
   }
   
   /// Internal constructor
-  AuthService._internal() {
-    // Auto-load token on initialization
-    tryAutoLogin();
-  }
+  AuthService._internal();
   
   /// Try to login automatically using stored token
   Future<bool> tryAutoLogin() async {
@@ -114,6 +118,7 @@ class AuthService extends ChangeNotifier {
       _userId = data['userId'];
       _username = data['username'];
       _email = data['email'];
+      _isGuest = data['isGuest'] == true;
       
       
       // Set token in API service
@@ -148,7 +153,7 @@ class AuthService extends ChangeNotifier {
   Future<bool> login(String username, String password) async {
     _setLoading(true);
     _error = null;
-    
+
     try {
       final response = await http.post(
         Uri.parse('$_baseUrl/login/'),
@@ -158,34 +163,16 @@ class AuthService extends ChangeNotifier {
           'password': password,
         }),
       );
-      
+
       if (response.statusCode != 200) {
         final Map<String, dynamic> errorData = jsonDecode(utf8.decode(response.bodyBytes));
         _error = errorData['error'] ?? 'Login failed';
         _setLoading(false);
         return false;
       }
-      
-      // Parse response data
+
       final Map<String, dynamic> responseData = jsonDecode(utf8.decode(response.bodyBytes));
-      _token = responseData['token'];
-      _userId = responseData['user_id'];
-      _username = responseData['username'];
-      _email = responseData['email'];
-      
-      // Create user model
-      _currentUser = UserModel.fromAuthJson(responseData);
-      
-      // Save authentication data
-      await _saveAuthData();
-      
-      // Set token in API service
-      ApiService().setAuthToken(_token!);
-      
-      // Set expiration timer
-      _setExpirationTimer();
-      
-      notifyListeners();
+      await _applyAuthSession(responseData, guest: false);
       _setLoading(false);
       return true;
     } catch (e) {
@@ -194,6 +181,66 @@ class AuthService extends ChangeNotifier {
       _setLoading(false);
       return false;
     }
+  }
+
+  /// Start a shared demo session (open-source local default).
+  Future<bool> loginAsGuest() async {
+    if (!AppConfig.autoGuestLogin) {
+      return false;
+    }
+
+    _setLoading(true);
+    _error = null;
+
+    try {
+      final response = await http.post(
+        Uri.parse('$_baseUrl/demo/'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode != 200) {
+        _error = 'Guest access is unavailable on this server.';
+        _setLoading(false);
+        return false;
+      }
+
+      final Map<String, dynamic> responseData = jsonDecode(utf8.decode(response.bodyBytes));
+      await _applyAuthSession(responseData, guest: true);
+      _setLoading(false);
+      return true;
+    } catch (e) {
+      _error = 'Guest login failed: $e';
+      debugPrint(_error);
+      _setLoading(false);
+      return false;
+    }
+  }
+
+  /// Restore saved session, then fall back to guest access when enabled.
+  Future<void> bootstrapAuth() async {
+    if (!isAuthenticated) {
+      await tryAutoLogin();
+    }
+    if (!isAuthenticated && AppConfig.autoGuestLogin) {
+      await loginAsGuest();
+    }
+  }
+
+  Future<void> _applyAuthSession(
+    Map<String, dynamic> responseData, {
+    required bool guest,
+  }) async {
+    _token = responseData['token'] as String?;
+    _userId = responseData['user_id'] as int? ?? responseData['id'] as int?;
+    _username = responseData['username'] as String?;
+    _email = responseData['email'] as String?;
+    _isGuest = guest;
+
+    _currentUser = UserModel.fromAuthJson(responseData);
+    await _saveAuthData();
+    ApiService().setAuthToken(_token!);
+    _setExpirationTimer();
+    notifyListeners();
   }
   
   /// Register a new user
@@ -226,11 +273,8 @@ class AuthService extends ChangeNotifier {
       _userId = userData['id'];
       _username = userData['username'];
       _email = userData['email'];
-      
-      // Create user model
+      _isGuest = false;
       _currentUser = UserModel.fromAuthJson(userData);
-      
-      // Save authentication data
       await _saveAuthData();
       
       // Set token in API service
@@ -251,10 +295,9 @@ class AuthService extends ChangeNotifier {
   }
   
   /// Logout the current user
-  Future<void> logout() async {
+  Future<void> logout({bool revokeServerSession = true}) async {
     try {
-      if (_token != null) {
-        // Try to notify the server about logout
+      if (_token != null && revokeServerSession && !_isGuest) {
         await http.post(
           Uri.parse('$_baseUrl/logout/'),
           headers: {
@@ -262,17 +305,16 @@ class AuthService extends ChangeNotifier {
             'Authorization': 'Token $_token',
           },
         ).catchError((e) {
-          // Ignore errors during logout request
           debugPrint('Logout request error: $e');
         });
       }
     } finally {
-      // Clear local data regardless of server response
       _token = null;
       _userId = null;
       _username = null;
       _email = null;
       _currentUser = null;
+      _isGuest = false;
       
       // Cancel expiration timer
       _tokenExpiryTimer?.cancel();
@@ -327,6 +369,7 @@ class AuthService extends ChangeNotifier {
       'userId': _userId,
       'username': _username,
       'email': _email,
+      'isGuest': _isGuest,
       'expiryTime': expiryTime.toIso8601String(),
       'userData': _currentUser?.toJson(),
     });

@@ -1,7 +1,5 @@
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:open_file/open_file.dart';
 import 'package:path/path.dart' as p;
 
 import '../../../core/models/document_model.dart';
@@ -30,24 +28,9 @@ Future<void> downloadGeneratedDocument(
     final filename = _downloadFilename(document);
     final data = Uint8List.fromList(bytes);
 
-    String? pickedPath;
-    if (!kIsWeb) {
-      try {
-        pickedPath = await FilePicker.platform.saveFile(
-          dialogTitle: 'Save Word Document',
-          fileName: filename,
-          type: FileType.custom,
-          allowedExtensions: const ['docx'],
-        );
-      } catch (_) {
-        pickedPath = null;
-      }
-    }
-
     final savedPath = await saveDocumentBytes(
       filename: filename,
       data: data,
-      pickedPath: pickedPath,
     );
 
     if (!context.mounted) {
@@ -58,18 +41,10 @@ Future<void> downloadGeneratedDocument(
         ? 'Download started: $savedPath'
         : 'Document saved: $savedPath';
 
-    final openAction = canOpenSavedFile
-        ? SnackBarAction(
-            label: 'Open',
-            onPressed: () => OpenFile.open(savedPath),
-          )
-        : null;
-
     messenger.showSnackBar(
       SnackBar(
         content: Text(statusText),
         duration: const Duration(seconds: 6),
-        action: openAction,
       ),
     );
   } catch (error, stackTrace) {

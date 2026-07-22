@@ -3,6 +3,7 @@
 **AI-powered literature reviews from PubMed** — search papers, retrieve full text, synthesize sections with configurable LLMs, export Word documents.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](VERSION)
 
 ## Features
 
@@ -11,70 +12,65 @@
 - LLM synthesis with numbered citations (OpenAI or local LM Studio)
 - Async generation via Celery with live progress logs
 - Neo4j graph storage + filesystem hybrid for large texts
-- Flutter UI (login, document history, reader, Word download)
+- **Web app** — open in your browser, no Flutter install required
 - REST API with OpenAPI docs (`/api/docs/`)
 - CLI for headless use
 
-## Quick start (Docker)
+## Quick start (non-developers)
+
+**Requirements:** [Docker Desktop](https://docs.docker.com/get-docker/) + [Flutter SDK](https://docs.flutter.dev/get-started/install) (one-time web build) + an LLM (OpenAI key or [LM Studio](https://lmstudio.ai/))
 
 ```bash
 git clone https://github.com/mohamadmoin/pubmed-lit-review.git
 cd pubmed-lit-review
-cp .env.example .env
-# Edit .env: set PUBMED_EMAIL (required), NEO4J_PASSWORD, LLM settings
+./scripts/start.sh          # macOS / Linux — builds web UI, starts Docker, opens browser
+# scripts\start.bat         # Windows
+```
 
+Or step by step:
+
+```bash
+cp .env.example .env        # edit PUBMED_EMAIL, NEO4J_PASSWORD, LLM settings
+./scripts/build-web.sh      # build Flutter web → backend/frontend_dist/
 docker compose up -d --build
+# open http://127.0.0.1:8002/
 ```
 
 | Service | URL |
 |---------|-----|
+| **Web app** | http://127.0.0.1:8002/ |
 | API | http://127.0.0.1:8002/api |
 | Swagger | http://127.0.0.1:8002/api/docs/ |
 | Neo4j Browser | http://127.0.0.1:7475 |
 
-> **Note:** Default host port is **8002** to avoid clashing with other local services. Change `ports` in `docker-compose.yml` if needed.
+> Default host port is **8002** to avoid clashing with other local services.
 
-### LLM setup
+## Documentation
 
-**Local (default)** — [LM Studio](https://lmstudio.ai/): load a model, start server on port 1234, set:
+| Guide | Audience |
+|-------|----------|
+| [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md) | First-time users, troubleshooting, LLM setup |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System design |
+| [docs/RELEASE.md](docs/RELEASE.md) | Versioning and releases |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Developers |
 
-```env
-LLM_PROVIDER=lmstudio
-LM_STUDIO_BASE_URL=http://host.docker.internal:1234/v1
-LM_STUDIO_MODEL=google/gemma-4-12b
-```
+## Flutter development (optional)
 
-**OpenAI**:
-
-```env
-LLM_PROVIDER=openai
-OPENAI_API_KEY=your-openai-key
-OPENAI_MODEL=gpt-4o-mini
-```
-
-### PubMed / NCBI
-
-NCBI requires a contact email for Entrez API use:
-
-```env
-PUBMED_EMAIL=your.email@example.com
-PUBMED_TOOL=LitReview
-PUBMED_API_KEY=          # optional, increases rate limits
-```
-
-Register: https://www.ncbi.nlm.nih.gov/account/settings/
-
-## Flutter client
+Only needed if you are **changing the UI**. End users should use the web app via Docker.
 
 ```bash
 cd frontend
 flutter pub get
-flutter run -d windows   # or chrome, macos, etc.
+flutter run -d chrome
 ```
 
-API base URL: `http://127.0.0.1:8002/api` (see `lib/core/config/app_config.dart`).
+API base URL defaults to `http://127.0.0.1:8002/api`. The bundled web build uses `/api` (same origin).
 
-After login, the **document list** is the home screen — start a new literature review from the FAB.
+Rebuild the web app into the backend:
+
+```bash
+./scripts/build-web.sh
+```
 
 ## CLI
 
@@ -92,14 +88,14 @@ Set `LITREVIEW_API_URL` to override the default API base.
 ```
 pubmed-lit-review/
 ├── backend/          Django API + Celery + generation pipeline
-├── frontend/         Flutter client
+├── frontend/         Flutter client (web build bundled in Docker)
+├── scripts/          start.sh, build-web.sh, release.sh
 ├── cli/              Command-line interface
-├── docs/             Architecture documentation
-├── data/             Generated text and .docx (gitignored)
+├── docs/             User and developer documentation
+├── VERSION           Release version (single source of truth)
+├── backend/Dockerfile  Python API image (web UI built separately)
 └── docker-compose.yml
 ```
-
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for system design.
 
 ## Environment variables
 
@@ -118,14 +114,14 @@ Full list: [.env.example](.env.example)
 ## Development
 
 ```bash
-# Backend locally (requires Neo4j + Redis running)
+# Backend live reload inside Docker
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+
+# Or run backend locally (requires Neo4j + Redis)
 cd backend
 pip install -r requirements.txt
 python manage.py migrate
 python manage.py runserver 0.0.0.0:8001
-
-# Celery worker (separate terminal)
-celery -A litreview worker -l INFO
 ```
 
 ## License

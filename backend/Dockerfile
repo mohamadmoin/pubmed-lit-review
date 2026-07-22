@@ -1,38 +1,26 @@
-# Use an official Python runtime as a parent image
-FROM python:3.11-bullseye
+# LitReview backend API (Flutter web UI is built separately — see scripts/build-web.sh)
+FROM python:3.11-slim-bookworm
 
-# Set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV FRONTEND_DIST=/app/frontend_dist
 
-# Set work directory
 WORKDIR /app
 
-# Install system dependencies in smaller steps
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
-COPY requirements.txt .
+COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy project
-COPY . .
+COPY VERSION /app/VERSION
+COPY backend/ .
 
-# Create logs directory with proper permissions
-RUN mkdir -p /app/logs && chmod 777 /app/logs
+RUN mkdir -p /app/logs /app/frontend_dist && chmod 777 /app/logs
 
-# Start API (inline to avoid CRLF issues with bind-mounted entrypoint.sh on Windows)
-CMD ["sh", "-c", "python manage.py migrate --noinput && python manage.py runserver 0.0.0.0:8001"]
+EXPOSE 8001
 
-# Make port 8001 available to the world outside this container
-EXPOSE 8001 
+CMD ["sh", "-c", "python manage.py migrate --noinput && python manage.py ensure_demo_user && python manage.py runserver 0.0.0.0:8001"]

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:glass_kit/glass_kit.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:litreview_app/ui/widgets/glass_panel.dart';
+import 'package:litreview_app/core/theme/app_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../core/models/document_model.dart';
@@ -66,7 +66,7 @@ class DocumentSourcesView extends StatelessWidget {
               children: [
                 Text(
                   isViewingSectionSources ? 'Selected Papers' : 'References',
-                  style: GoogleFonts.poppins(
+                  style: AppFonts.heading(
                     color: AppColors.primaryText,
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
@@ -85,7 +85,7 @@ class DocumentSourcesView extends StatelessWidget {
                   ),
                   child: Text(
                     '${sources.length} ${isViewingSectionSources ? 'papers' : 'references'}',
-                    style: GoogleFonts.inter(
+                    style: AppFonts.inter(
                       color: AppColors.accentPurple,
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
@@ -137,7 +137,7 @@ class DocumentSourcesView extends StatelessWidget {
                 Expanded(
                   child: Text(
                     'PMID: ${paper.pmid}',
-                    style: GoogleFonts.inter(
+                    style: AppFonts.inter(
                       color: AppColors.accentBlue,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -149,7 +149,7 @@ class DocumentSourcesView extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               paper.title,
-              style: GoogleFonts.inter(
+              style: AppFonts.inter(
                 color: AppColors.primaryText,
                 fontSize: 13,
                 height: 1.4,
@@ -160,7 +160,7 @@ class DocumentSourcesView extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               paper.authorString,
-              style: GoogleFonts.inter(
+              style: AppFonts.inter(
                 color: AppColors.secondaryText,
                 fontSize: 12,
                 height: 1.4,
@@ -183,7 +183,7 @@ class DocumentSourcesView extends StatelessWidget {
                   ),
                   child: Text(
                     'Relevance: ${(paper.relevanceScore * 100).toStringAsFixed(1)}%',
-                    style: GoogleFonts.inter(
+                    style: AppFonts.inter(
                       color: AppColors.accentPurple,
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
@@ -224,7 +224,7 @@ class DocumentSourcesView extends StatelessWidget {
                 Expanded(
                   child: Text(
                     'PMID: ${reference.pmid}',
-                    style: GoogleFonts.inter(
+                    style: AppFonts.inter(
                       color: AppColors.accentBlue,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -236,7 +236,7 @@ class DocumentSourcesView extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               reference.formattedReference,
-              style: GoogleFonts.inter(
+              style: AppFonts.inter(
                 color: AppColors.primaryText,
                 fontSize: 13,
                 height: 1.4,
@@ -259,7 +259,7 @@ class DocumentSourcesView extends StatelessWidget {
                   ),
                   child: Text(
                     'Used in $sectionCount section${sectionCount != 1 ? 's' : ''}',
-                    style: GoogleFonts.inter(
+                    style: AppFonts.inter(
                       color: AppColors.accentPurple,
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
@@ -322,7 +322,7 @@ class DocumentSourcesView extends StatelessWidget {
           children: [
             Text(
               'Paper Details',
-              style: GoogleFonts.poppins(
+              style: AppFonts.heading(
                 color: AppColors.primaryText,
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -355,7 +355,7 @@ class DocumentSourcesView extends StatelessWidget {
         children: [
           Text(
             paper.title,
-            style: GoogleFonts.inter(
+            style: AppFonts.inter(
               color: AppColors.primaryText,
               fontSize: 15,
               height: 1.5,
@@ -377,7 +377,7 @@ class DocumentSourcesView extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               'Abstract',
-              style: GoogleFonts.inter(
+              style: AppFonts.inter(
                 color: AppColors.accentBlue,
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
@@ -386,7 +386,7 @@ class DocumentSourcesView extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               paper.abstract,
-              style: GoogleFonts.inter(
+              style: AppFonts.inter(
                 color: AppColors.primaryText,
                 fontSize: 14,
                 height: 1.5,
@@ -399,7 +399,7 @@ class DocumentSourcesView extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               'AI Summary',
-              style: GoogleFonts.inter(
+              style: AppFonts.inter(
                 color: AppColors.accentBlue,
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
@@ -408,7 +408,7 @@ class DocumentSourcesView extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               paper.summary!,
-              style: GoogleFonts.inter(
+              style: AppFonts.inter(
                 color: AppColors.primaryText,
                 fontSize: 14,
                 height: 1.5,
@@ -421,7 +421,7 @@ class DocumentSourcesView extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               'Full Text Preview',
-              style: GoogleFonts.inter(
+              style: AppFonts.inter(
                 color: AppColors.accentBlue,
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
@@ -432,7 +432,7 @@ class DocumentSourcesView extends StatelessWidget {
               paper.fullTextPreview!,
               maxLines: 8,
               overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.inter(
+              style: AppFonts.inter(
                 color: AppColors.primaryText,
                 fontSize: 14,
                 height: 1.5,
@@ -452,7 +452,7 @@ class DocumentSourcesView extends StatelessWidget {
           width: 100,
           child: Text(
             label,
-            style: GoogleFonts.inter(
+            style: AppFonts.inter(
               color: AppColors.secondaryText,
               fontSize: 14,
               fontWeight: FontWeight.w500,
@@ -462,7 +462,7 @@ class DocumentSourcesView extends StatelessWidget {
         Expanded(
           child: Text(
             value,
-            style: GoogleFonts.inter(
+            style: AppFonts.inter(
               color: AppColors.primaryText,
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -545,7 +545,7 @@ class DocumentSourcesView extends StatelessWidget {
       builder: (context) => AlertDialog(
         title: Text(
           paper.title.isNotEmpty ? paper.title : 'Paper ${paper.pmid}',
-          style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600),
+          style: AppFonts.heading(fontSize: 16, fontWeight: FontWeight.w600),
         ),
         content: SizedBox(
           width: 600,
@@ -554,7 +554,7 @@ class DocumentSourcesView extends StatelessWidget {
               content.isNotEmpty
                   ? content
                   : 'No stored full text for this paper. Open in PubMed to read the abstract online.',
-              style: GoogleFonts.inter(fontSize: 14, height: 1.5),
+              style: AppFonts.inter(fontSize: 14, height: 1.5),
             ),
           ),
         ),
@@ -604,7 +604,7 @@ class DocumentSourcesView extends StatelessWidget {
             const SizedBox(width: 8),
             Text(
               label,
-              style: GoogleFonts.inter(
+              style: AppFonts.inter(
                 color: AppColors.accentBlue,
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
@@ -649,7 +649,7 @@ class DocumentSourcesView extends StatelessWidget {
           children: [
             Text(
               'Sources Overview',
-              style: GoogleFonts.poppins(
+              style: AppFonts.heading(
                 color: AppColors.primaryText,
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -658,7 +658,7 @@ class DocumentSourcesView extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               'Select a source from the list to view detailed information',
-              style: GoogleFonts.inter(
+              style: AppFonts.inter(
                 color: AppColors.secondaryText,
                 fontSize: 14,
               ),
@@ -690,7 +690,7 @@ class DocumentSourcesView extends StatelessWidget {
         children: [
           Text(
             'Sources Distribution',
-            style: GoogleFonts.poppins(
+            style: AppFonts.heading(
               color: AppColors.accentBlue,
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -714,7 +714,7 @@ class DocumentSourcesView extends StatelessWidget {
         children: [
           Text(
             section.title,
-            style: GoogleFonts.inter(
+            style: AppFonts.inter(
               color: AppColors.primaryText,
               fontSize: 15,
               fontWeight: FontWeight.w600,
@@ -745,7 +745,7 @@ class DocumentSourcesView extends StatelessWidget {
               const SizedBox(width: 16),
               Text(
                 '${references.length} source${references.length != 1 ? 's' : ''}',
-                style: GoogleFonts.inter(
+                style: AppFonts.inter(
                   color: AppColors.accentPurple,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -841,7 +841,7 @@ class DocumentSourcesView extends StatelessWidget {
               Expanded(
                 child: Text(
                   title,
-                  style: GoogleFonts.inter(
+                  style: AppFonts.inter(
                     color: AppColors.secondaryText,
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
@@ -853,7 +853,7 @@ class DocumentSourcesView extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             value,
-            style: GoogleFonts.poppins(
+            style: AppFonts.heading(
               color: AppColors.primaryText,
               fontSize: 24,
               fontWeight: FontWeight.w600,
@@ -897,7 +897,7 @@ class DocumentSourcesView extends StatelessWidget {
           children: [
             Text(
               'Reference Details',
-              style: GoogleFonts.poppins(
+              style: AppFonts.heading(
                 color: AppColors.primaryText,
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -909,7 +909,7 @@ class DocumentSourcesView extends StatelessWidget {
             if (relatedSections.isNotEmpty) ...[
               Text(
                 'Used in Sections',
-                style: GoogleFonts.poppins(
+                style: AppFonts.heading(
                   color: AppColors.primaryText,
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -943,7 +943,7 @@ class DocumentSourcesView extends StatelessWidget {
         children: [
           Text(
             reference.formattedReference,
-            style: GoogleFonts.inter(
+            style: AppFonts.inter(
               color: AppColors.primaryText,
               fontSize: 15,
               height: 1.5,
@@ -981,7 +981,7 @@ class DocumentSourcesView extends StatelessWidget {
         children: [
           Text(
             section.title,
-            style: GoogleFonts.poppins(
+            style: AppFonts.heading(
               color: AppColors.primaryText,
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -990,7 +990,7 @@ class DocumentSourcesView extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             section.content,
-            style: GoogleFonts.inter(
+            style: AppFonts.inter(
               color: AppColors.secondaryText,
               fontSize: 14,
               height: 1.5,
@@ -1008,7 +1008,7 @@ class DocumentSourcesView extends StatelessWidget {
               },
               child: Text(
                 'View in Document',
-                style: GoogleFonts.inter(
+                style: AppFonts.inter(
                   color: AppColors.accentBlue,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,

@@ -39,8 +39,8 @@ services:
 
   django:
     build:
-      context: ./backend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: backend/Dockerfile
     image: litreview-app:latest
     container_name: litreview-django
     ports:
@@ -54,8 +54,9 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - TEXT_STORAGE_PATH=/app/data/text_storage
       - LM_STUDIO_BASE_URL=http://host.docker.internal:1234/v1
+      - FRONTEND_DIST=/app/frontend_dist
     volumes:
-      - ./backend:/app
+      - ./backend/frontend_dist:/app/frontend_dist:ro
       - ./data:/app/data
       - ./logs:/app/logs
     extra_hosts:
@@ -83,7 +84,6 @@ services:
       - TEXT_STORAGE_PATH=/app/data/text_storage
       - LM_STUDIO_BASE_URL=http://host.docker.internal:1234/v1
     volumes:
-      - ./backend:/app
       - ./data:/app/data
       - ./logs:/app/logs
     extra_hosts:

@@ -15,6 +15,8 @@ venv/
 backend/db.sqlite3
 backend/media/
 backend/staticfiles/
+backend/frontend_dist/
+!backend/frontend_dist/.gitkeep
 backend/logs/
 
 # Data & logs

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../core/config/app_config.dart';
 import '../../core/services/auth_service.dart';
 import 'register_screen.dart';
 
@@ -266,7 +267,15 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                     ),
                     const SizedBox(height: 24),
-                    
+
+                    if (AppConfig.autoGuestLogin)
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pushReplacementNamed('/documents');
+                        },
+                        child: const Text('← Back to app (guest mode)'),
+                      ),
+
                     // Register link
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,

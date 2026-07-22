@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import '../config/app_config.dart';
 import '../models/document_model.dart';
 import 'api_service.dart';
 import 'connectivity_service.dart';
@@ -32,8 +33,8 @@ class DocumentService extends ChangeNotifier {
   /// Singleton instance
   static final DocumentService _instance = DocumentService._internal();
   
-  /// Base API URL - update with your actual backend URL
-  final String _baseUrl = 'http://127.0.0.1:8001/api';
+  /// Base API URL from application configuration.
+  String get _baseUrl => AppConfig.current.apiBaseUrl;
   
   /// Factory constructor that returns the singleton instance
   factory DocumentService({

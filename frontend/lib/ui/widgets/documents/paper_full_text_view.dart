@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:litreview_app/core/theme/app_fonts.dart';
 import '../../../core/models/document_model.dart';
 import '../../../core/services/document_service.dart';
 import '../../../core/theme/colors.dart';
@@ -95,7 +95,7 @@ class _PaperFullTextViewState extends State<PaperFullTextView> {
               (widget.paper.pmcId != null
                   ? 'Full text could not be loaded for PMC ${widget.paper.pmcId}.'
                   : 'No open-access full text is available for this paper.'),
-          style: GoogleFonts.inter(fontSize: 14, height: 1.5),
+          style: AppFonts.inter(fontSize: 14, height: 1.5),
         ),
       );
     }
@@ -115,7 +115,7 @@ class _PaperFullTextViewState extends State<PaperFullTextView> {
                 const SizedBox(width: 6),
                 Text(
                   'PubMed Central · ${widget.paper.pmcId}',
-                  style: GoogleFonts.inter(
+                  style: AppFonts.inter(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                     color: Colors.green.shade700,
@@ -130,7 +130,7 @@ class _PaperFullTextViewState extends State<PaperFullTextView> {
             padding: const EdgeInsets.only(top: 8),
             child: Text(
               '+ ${paragraphs.length - displayParagraphs.length} more paragraphs',
-              style: GoogleFonts.inter(
+              style: AppFonts.inter(
                 fontSize: 12,
                 color: AppColors.secondaryText,
                 fontStyle: FontStyle.italic,
@@ -173,7 +173,7 @@ class _PaperFullTextViewState extends State<PaperFullTextView> {
       ),
       child: SelectableText(
         paragraph,
-        style: GoogleFonts.inter(
+        style: AppFonts.inter(
           fontSize: isHeading ? 15 : 14,
           height: 1.65,
           fontWeight: isHeading ? FontWeight.w700 : FontWeight.w400,

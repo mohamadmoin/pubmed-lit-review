@@ -1,12 +1,14 @@
 """URL configuration for LitReview API."""
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from drf_spectacular.views import (
     SpectacularAPIView,
     SpectacularRedocView,
     SpectacularSwaggerView,
 )
 from rest_framework.permissions import AllowAny
+
+from litreview.frontend_views import serve_frontend
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -38,4 +40,5 @@ urlpatterns = [
         ),
         name='redoc',
     ),
+    re_path(r'^(?!api/|admin/|media/)(?P<path>.*)$', serve_frontend, name='frontend'),
 ]

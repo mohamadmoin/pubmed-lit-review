@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:litreview_app/core/theme/app_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../core/models/document_model.dart';
 import '../../../core/theme/colors.dart';
@@ -84,7 +84,7 @@ class _PaperCitationSheet extends StatelessWidget {
                       ),
                       child: Text(
                         '[$citationNumber]',
-                        style: GoogleFonts.inter(
+                        style: AppFonts.inter(
                           fontWeight: FontWeight.w700,
                           color: AppColors.accentPurple,
                         ),
@@ -94,7 +94,7 @@ class _PaperCitationSheet extends StatelessWidget {
                     Expanded(
                       child: Text(
                         title,
-                        style: GoogleFonts.poppins(
+                        style: AppFonts.heading(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),
@@ -133,7 +133,7 @@ class _PaperCitationSheet extends StatelessWidget {
                         const SizedBox(height: 16),
                         Text(
                           'Full text',
-                          style: GoogleFonts.inter(
+                          style: AppFonts.inter(
                             fontWeight: FontWeight.w600,
                             color: AppColors.accentBlue,
                           ),
@@ -150,7 +150,7 @@ class _PaperCitationSheet extends StatelessWidget {
                       const SizedBox(height: 12),
                       Text(
                         'Paper metadata is not stored for this reference. Open PubMed to read the abstract.',
-                        style: GoogleFonts.inter(color: AppColors.secondaryText),
+                        style: AppFonts.inter(color: AppColors.secondaryText),
                       ),
                     ],
                     const SizedBox(height: 20),
@@ -188,7 +188,7 @@ class _PaperCitationSheet extends StatelessWidget {
           Expanded(
             child: Text(
               text,
-              style: GoogleFonts.inter(fontSize: 13, color: AppColors.secondaryText),
+              style: AppFonts.inter(fontSize: 13, color: AppColors.secondaryText),
             ),
           ),
         ],
@@ -210,7 +210,7 @@ class _PaperCitationSheet extends StatelessWidget {
         children: [
           Text(
             label,
-            style: GoogleFonts.inter(
+            style: AppFonts.inter(
               fontWeight: FontWeight.w600,
               color: AppColors.accentBlue,
               fontSize: 13,
@@ -219,7 +219,7 @@ class _PaperCitationSheet extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             body,
-            style: GoogleFonts.inter(fontSize: 14, height: 1.55),
+            style: AppFonts.inter(fontSize: 14, height: 1.55),
           ),
         ],
       ),

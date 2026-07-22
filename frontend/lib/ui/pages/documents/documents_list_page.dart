@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:glass_kit/glass_kit.dart';
+import 'package:litreview_app/core/theme/app_fonts.dart';
+import 'package:litreview_app/ui/widgets/glass_panel.dart';
 import 'package:provider/provider.dart';
 import 'package:litreview_app/ui/pages/documents/document_preview_screen.dart';
 import '../../../core/models/document_model.dart';
@@ -106,7 +106,7 @@ class _DocumentsListPageState extends State<DocumentsListPage> {
           const SizedBox(height: 16),
           Text(
             'Loading documents...',
-            style: GoogleFonts.inter(
+            style: AppFonts.inter(
               color: AppColors.primaryText,
               fontSize: 16,
             ),
@@ -129,7 +129,7 @@ class _DocumentsListPageState extends State<DocumentsListPage> {
           const SizedBox(height: 16),
           Text(
             'Error loading documents',
-            style: GoogleFonts.poppins(
+            style: AppFonts.heading(
               color: AppColors.primaryText,
               fontSize: 20,
               fontWeight: FontWeight.w600,
@@ -138,7 +138,7 @@ class _DocumentsListPageState extends State<DocumentsListPage> {
           const SizedBox(height: 8),
           Text(
             error,
-            style: GoogleFonts.inter(
+            style: AppFonts.inter(
               color: AppColors.secondaryText,
               fontSize: 14,
             ),
@@ -157,7 +157,7 @@ class _DocumentsListPageState extends State<DocumentsListPage> {
               children: [
                 Text(
                   'Troubleshooting:',
-                  style: GoogleFonts.poppins(
+                  style: AppFonts.heading(
                     fontWeight: FontWeight.w600,
                     color: Colors.orange.shade800,
                   ),
@@ -165,7 +165,7 @@ class _DocumentsListPageState extends State<DocumentsListPage> {
                 const SizedBox(height: 8),
                 Text(
                   '1. Ensure Django API is running (python manage.py runserver)\n2. Verify Neo4j is running\n3. Check network connectivity',
-                  style: GoogleFonts.inter(
+                  style: AppFonts.inter(
                     color: Colors.orange.shade900,
                     fontSize: 14,
                   ),
@@ -203,7 +203,7 @@ class _DocumentsListPageState extends State<DocumentsListPage> {
           const SizedBox(height: 16),
           Text(
             'No AI-Generated Documents',
-            style: GoogleFonts.poppins(
+            style: AppFonts.heading(
               color: AppColors.primaryText,
               fontSize: 20,
               fontWeight: FontWeight.w600,
@@ -212,7 +212,7 @@ class _DocumentsListPageState extends State<DocumentsListPage> {
           const SizedBox(height: 8),
           Text(
             'AI-generated documents will appear here',
-            style: GoogleFonts.inter(
+            style: AppFonts.inter(
               color: AppColors.secondaryText,
               fontSize: 14,
             ),
@@ -230,7 +230,7 @@ class _DocumentsListPageState extends State<DocumentsListPage> {
         children: [
           Text(
             'AI-Generated Documents',
-            style: GoogleFonts.poppins(
+            style: AppFonts.heading(
               color: AppColors.primaryText,
               fontSize: 28,
               fontWeight: FontWeight.bold,
@@ -239,7 +239,7 @@ class _DocumentsListPageState extends State<DocumentsListPage> {
           const SizedBox(height: 8),
           Text(
             'Select a document to view its content and sources',
-            style: GoogleFonts.inter(
+            style: AppFonts.inter(
               color: AppColors.secondaryText,
               fontSize: 16,
             ),
@@ -319,7 +319,7 @@ class _DocumentsListPageState extends State<DocumentsListPage> {
                       const SizedBox(width: 4),
                       Text(
                         'AI-Generated',
-                        style: GoogleFonts.inter(
+                        style: AppFonts.inter(
                           color: AppColors.accentPurple,
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
@@ -331,7 +331,7 @@ class _DocumentsListPageState extends State<DocumentsListPage> {
                 const Spacer(),
                 Text(
                   _formatDate(document.createdAt),
-                  style: GoogleFonts.inter(
+                  style: AppFonts.inter(
                     color: AppColors.tertiaryText,
                     fontSize: 12,
                   ),
@@ -345,7 +345,7 @@ class _DocumentsListPageState extends State<DocumentsListPage> {
                 children: [
                   Text(
                     document.title,
-                    style: GoogleFonts.poppins(
+                    style: AppFonts.heading(
                       color: AppColors.primaryText,
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
@@ -356,7 +356,7 @@ class _DocumentsListPageState extends State<DocumentsListPage> {
                   const SizedBox(height: 8),
                   Text(
                     document.description,
-                    style: GoogleFonts.inter(
+                    style: AppFonts.inter(
                       color: AppColors.secondaryText,
                       fontSize: 14,
                     ),
@@ -407,7 +407,7 @@ class _DocumentsListPageState extends State<DocumentsListPage> {
           const SizedBox(width: 4),
           Text(
             label,
-            style: GoogleFonts.inter(
+            style: AppFonts.inter(
               color: AppColors.accentBlue,
               fontSize: 12,
               fontWeight: FontWeight.w500,

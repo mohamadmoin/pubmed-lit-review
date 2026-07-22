@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:glass_kit/glass_kit.dart';
+import 'package:litreview_app/core/theme/app_fonts.dart';
+import 'package:litreview_app/ui/widgets/glass_panel.dart';
 import 'package:provider/provider.dart';
 import '../../../core/models/document_model.dart';
 import '../../../core/providers/document_provider.dart';
@@ -83,7 +83,7 @@ class _DocumentGenerationPageState extends State<DocumentGenerationPage> {
             children: [
               Text(
                 'Generate AI Document',
-                style: GoogleFonts.poppins(
+                style: AppFonts.heading(
                   color: AppColors.primaryText,
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -125,7 +125,7 @@ class _DocumentGenerationPageState extends State<DocumentGenerationPage> {
       children: [
         Text(
           label,
-          style: GoogleFonts.poppins(
+          style: AppFonts.heading(
             color: AppColors.primaryText,
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -135,12 +135,12 @@ class _DocumentGenerationPageState extends State<DocumentGenerationPage> {
         TextFormField(
           controller: controller,
           maxLines: maxLines,
-          style: GoogleFonts.inter(
+          style: AppFonts.inter(
             color: AppColors.primaryText,
           ),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: GoogleFonts.inter(
+            hintStyle: AppFonts.inter(
               color: AppColors.tertiaryText,
             ),
             filled: true,
@@ -181,7 +181,7 @@ class _DocumentGenerationPageState extends State<DocumentGenerationPage> {
       children: [
         Text(
           'Word Count: $_wordCount',
-          style: GoogleFonts.poppins(
+          style: AppFonts.heading(
             color: AppColors.primaryText,
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -239,7 +239,7 @@ class _DocumentGenerationPageState extends State<DocumentGenerationPage> {
                   const SizedBox(width: 12),
                   Text(
                     'Generating...',
-                    style: GoogleFonts.inter(
+                    style: AppFonts.inter(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
@@ -248,7 +248,7 @@ class _DocumentGenerationPageState extends State<DocumentGenerationPage> {
               )
             : Text(
                 'Generate Document',
-                style: GoogleFonts.inter(
+                style: AppFonts.inter(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                 ),
@@ -279,7 +279,7 @@ class _DocumentGenerationPageState extends State<DocumentGenerationPage> {
           children: [
             Text(
               'About Document Generation',
-              style: GoogleFonts.poppins(
+              style: AppFonts.heading(
                 color: AppColors.primaryText,
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -334,7 +334,7 @@ class _DocumentGenerationPageState extends State<DocumentGenerationPage> {
         children: [
           Text(
             title,
-            style: GoogleFonts.poppins(
+            style: AppFonts.heading(
               color: AppColors.accentBlue,
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -343,7 +343,7 @@ class _DocumentGenerationPageState extends State<DocumentGenerationPage> {
           const SizedBox(height: 8),
           Text(
             content,
-            style: GoogleFonts.inter(
+            style: AppFonts.inter(
               color: AppColors.primaryText,
               fontSize: 14,
             ),
@@ -364,7 +364,7 @@ class _DocumentGenerationPageState extends State<DocumentGenerationPage> {
                     Expanded(
                       child: Text(
                         point,
-                        style: GoogleFonts.inter(
+                        style: AppFonts.inter(
                           color: AppColors.secondaryText,
                           fontSize: 14,
                         ),

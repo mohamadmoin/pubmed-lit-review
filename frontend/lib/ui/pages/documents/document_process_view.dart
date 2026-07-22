@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:glass_kit/glass_kit.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:litreview_app/ui/widgets/glass_panel.dart';
+import 'package:litreview_app/core/theme/app_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../../core/models/document_model.dart';
@@ -85,7 +85,7 @@ class DocumentProcessView extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             child: Text(
               'Process Flow',
-              style: GoogleFonts.poppins(
+              style: AppFonts.heading(
                 color: AppColors.primaryText,
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -138,7 +138,7 @@ class DocumentProcessView extends StatelessWidget {
       child: Center(
         child: Text(
           'No process logs available',
-          style: GoogleFonts.poppins(
+          style: AppFonts.heading(
             color: AppColors.secondaryText,
             fontSize: 14,
           ),
@@ -199,7 +199,7 @@ class DocumentProcessView extends StatelessWidget {
                 Expanded(
                   child: Text(
                     _formatStepName(step),
-                    style: GoogleFonts.inter(
+                    style: AppFonts.inter(
                       color: AppColors.primaryText,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -215,7 +215,7 @@ class DocumentProcessView extends StatelessWidget {
                     ),
                     child: Text(
                       'Failed',
-                      style: GoogleFonts.inter(
+                      style: AppFonts.inter(
                         color: Colors.red.shade400,
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
@@ -231,7 +231,7 @@ class DocumentProcessView extends StatelessWidget {
                     ),
                     child: Text(
                       'Completed',
-                      style: GoogleFonts.inter(
+                      style: AppFonts.inter(
                         color: AppColors.accentBlue,
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
@@ -307,7 +307,7 @@ class DocumentProcessView extends StatelessWidget {
           children: [
             Text(
               '${_formatStepName(selectedStep)} Step',
-              style: GoogleFonts.poppins(
+              style: AppFonts.heading(
                 color: AppColors.primaryText,
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -318,7 +318,7 @@ class DocumentProcessView extends StatelessWidget {
             const SizedBox(height: 24),
             Text(
               'Process Logs',
-              style: GoogleFonts.poppins(
+              style: AppFonts.heading(
                 color: AppColors.primaryText,
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -381,7 +381,7 @@ class DocumentProcessView extends StatelessWidget {
               const SizedBox(width: 12),
               Text(
                 statusText,
-                style: GoogleFonts.poppins(
+                style: AppFonts.heading(
                   color: statusColor,
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -415,7 +415,7 @@ class DocumentProcessView extends StatelessWidget {
           width: 120,
           child: Text(
             label,
-            style: GoogleFonts.inter(
+            style: AppFonts.inter(
               color: AppColors.secondaryText,
               fontSize: 14,
               fontWeight: FontWeight.w500,
@@ -425,7 +425,7 @@ class DocumentProcessView extends StatelessWidget {
         Expanded(
           child: Text(
             value,
-            style: GoogleFonts.inter(
+            style: AppFonts.inter(
               color: AppColors.primaryText,
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -467,7 +467,7 @@ class DocumentProcessView extends StatelessWidget {
                 ),
                 child: Text(
                   log.level ?? "Unknown Status",
-                  style: GoogleFonts.inter(
+                  style: AppFonts.inter(
                     color: statusColor,
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
@@ -477,7 +477,7 @@ class DocumentProcessView extends StatelessWidget {
               const Spacer(),
               Text(
                 DateFormat('HH:mm:ss').format(log.timestamp),
-                style: GoogleFonts.inter(
+                style: AppFonts.inter(
                   color: AppColors.tertiaryText,
                   fontSize: 12,
                 ),
@@ -487,7 +487,7 @@ class DocumentProcessView extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             log.source ?? "No Source",
-            style: GoogleFonts.inter(
+            style: AppFonts.inter(
               color: AppColors.primaryText,
               fontSize: 14,
               height: 1.5,
@@ -540,7 +540,7 @@ class DocumentProcessView extends StatelessWidget {
           children: [
             Text(
               'Process Overview',
-              style: GoogleFonts.poppins(
+              style: AppFonts.heading(
                 color: AppColors.primaryText,
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -549,7 +549,7 @@ class DocumentProcessView extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               'Select a process step from the left panel to view detailed information',
-              style: GoogleFonts.inter(
+              style: AppFonts.inter(
                 color: AppColors.secondaryText,
                 fontSize: 14,
               ),
@@ -593,7 +593,7 @@ class DocumentProcessView extends StatelessWidget {
         children: [
           Text(
             'Process Summary',
-            style: GoogleFonts.poppins(
+            style: AppFonts.heading(
               color: AppColors.accentBlue,
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -715,7 +715,7 @@ class DocumentProcessView extends StatelessWidget {
                 children: [
                   Text(
                     _formatStepName(step),
-                    style: GoogleFonts.poppins(
+                    style: AppFonts.heading(
                       color: AppColors.primaryText,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -725,7 +725,7 @@ class DocumentProcessView extends StatelessWidget {
                   Text(
                     DateFormat('MMM d, HH:mm:ss').format(startTime) +
                         ' (${duration.inMinutes}m ${duration.inSeconds % 60}s)',
-                    style: GoogleFonts.inter(
+                    style: AppFonts.inter(
                       color: AppColors.secondaryText,
                       fontSize: 12,
                     ),
@@ -733,7 +733,7 @@ class DocumentProcessView extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     stepLogs.last.source?? "No Last Source",
-                    style: GoogleFonts.inter(
+                    style: AppFonts.inter(
                       color: AppColors.tertiaryText,
                       fontSize: 12,
                     ),
@@ -765,7 +765,7 @@ class DocumentProcessView extends StatelessWidget {
         children: [
           Text(
             'Process Timeline',
-            style: GoogleFonts.poppins(
+            style: AppFonts.heading(
               color: AppColors.accentPurple,
               fontSize: 16,
               fontWeight: FontWeight.w600,

@@ -4,11 +4,17 @@ Django settings for LitReview — PubMed AI literature review API.
 from pathlib import Path
 import os
 
+from litreview.version import get_version
+
 BASE_DIR = Path(__file__).resolve().parent.parent
+APP_VERSION = get_version()
 
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'change-me-in-production')
 ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+
+# Open-source default: shared demo user for zero-setup local use. Set False in production.
+LITREVIEW_DEMO_MODE = os.getenv('LITREVIEW_DEMO_MODE', 'True') == 'True'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -78,6 +84,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+FRONTEND_DIST = Path(os.getenv('FRONTEND_DIST', BASE_DIR / 'frontend_dist'))
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # CORS — tighten in production
@@ -107,7 +114,7 @@ REST_FRAMEWORK = {
 SPECTACULAR_SETTINGS = {
     'TITLE': 'LitReview API',
     'DESCRIPTION': 'PubMed-based AI literature review generation',
-    'VERSION': '0.1.0',
+    'VERSION': APP_VERSION,
     'SERVE_INCLUDE_SCHEMA': False,
     'SCHEMA_PATH_PREFIX': '/api/',
     'TAGS': [

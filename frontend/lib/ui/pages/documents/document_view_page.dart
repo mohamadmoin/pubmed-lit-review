@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:glass_kit/glass_kit.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:litreview_app/ui/widgets/glass_panel.dart';
+import 'package:litreview_app/core/theme/app_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../../core/models/document_model.dart';
 import '../../../core/providers/document_provider.dart';
@@ -74,7 +74,7 @@ class _DocumentViewPageState extends State<DocumentViewPage> {
           const SizedBox(height: 16),
           Text(
             'Loading document...',
-            style: GoogleFonts.inter(
+            style: AppFonts.inter(
               color: AppColors.primaryText,
               fontSize: 16,
             ),
@@ -97,7 +97,7 @@ class _DocumentViewPageState extends State<DocumentViewPage> {
           const SizedBox(height: 16),
           Text(
             'Error loading document',
-            style: GoogleFonts.poppins(
+            style: AppFonts.heading(
               color: AppColors.primaryText,
               fontSize: 20,
               fontWeight: FontWeight.w600,
@@ -106,7 +106,7 @@ class _DocumentViewPageState extends State<DocumentViewPage> {
           const SizedBox(height: 8),
           Text(
             error,
-            style: GoogleFonts.inter(
+            style: AppFonts.inter(
               color: AppColors.secondaryText,
               fontSize: 14,
             ),
@@ -138,7 +138,7 @@ class _DocumentViewPageState extends State<DocumentViewPage> {
           const SizedBox(height: 16),
           Text(
             'No document found',
-            style: GoogleFonts.poppins(
+            style: AppFonts.heading(
               color: AppColors.primaryText,
               fontSize: 20,
               fontWeight: FontWeight.w600,
@@ -147,7 +147,7 @@ class _DocumentViewPageState extends State<DocumentViewPage> {
           const SizedBox(height: 8),
           Text(
             'The requested document could not be found',
-            style: GoogleFonts.inter(
+            style: AppFonts.inter(
               color: AppColors.secondaryText,
               fontSize: 14,
             ),
@@ -205,7 +205,7 @@ class _DocumentViewPageState extends State<DocumentViewPage> {
                   children: [
                     Text(
                       document.title,
-                      style: GoogleFonts.poppins(
+                      style: AppFonts.heading(
                         color: AppColors.primaryText,
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -214,7 +214,7 @@ class _DocumentViewPageState extends State<DocumentViewPage> {
                     const SizedBox(height: 8),
                     Text(
                       document.description,
-                      style: GoogleFonts.inter(
+                      style: AppFonts.inter(
                         color: AppColors.secondaryText,
                         fontSize: 16,
                       ),
@@ -300,7 +300,7 @@ class _DocumentViewPageState extends State<DocumentViewPage> {
         const SizedBox(width: 8),
         Text(
           label,
-          style: GoogleFonts.inter(
+          style: AppFonts.inter(
             color: AppColors.tertiaryText,
             fontSize: 12,
             fontWeight: FontWeight.w500,
@@ -309,7 +309,7 @@ class _DocumentViewPageState extends State<DocumentViewPage> {
         const SizedBox(width: 8),
         Text(
           value,
-          style: GoogleFonts.inter(
+          style: AppFonts.inter(
             color: AppColors.primaryText,
             fontSize: 14,
             fontWeight: FontWeight.w600,
@@ -343,7 +343,7 @@ class _DocumentViewPageState extends State<DocumentViewPage> {
             const SizedBox(width: 6),
             Text(
               label,
-              style: GoogleFonts.inter(
+              style: AppFonts.inter(
                 color: AppColors.accentBlue,
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -424,7 +424,7 @@ class _DocumentViewPageState extends State<DocumentViewPage> {
               const SizedBox(width: 8),
               Text(
                 label,
-                style: GoogleFonts.inter(
+                style: AppFonts.inter(
                   color: isActive ? AppColors.accentPurple : AppColors.secondaryText,
                   fontSize: 14,
                   fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:glass_kit/glass_kit.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:litreview_app/ui/widgets/glass_panel.dart';
+import 'package:litreview_app/core/theme/app_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../../core/models/document_model.dart';
 import '../../../core/providers/document_provider.dart';
@@ -81,7 +81,7 @@ class DocumentContentView extends StatelessWidget {
           children: [
             Text(
               section.title,
-              style: GoogleFonts.poppins(
+              style: AppFonts.heading(
                 color: AppColors.primaryText,
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
@@ -92,7 +92,7 @@ class DocumentContentView extends StatelessWidget {
               content: section.content,
               document: document,
               documentId: document.id,
-              style: GoogleFonts.inter(
+              style: AppFonts.inter(
                 color: AppColors.primaryText,
                 fontSize: 16,
                 height: 1.6,
@@ -151,7 +151,7 @@ class DocumentContentView extends StatelessWidget {
             const SizedBox(width: 6),
             Text(
               label,
-              style: GoogleFonts.inter(
+              style: AppFonts.inter(
                 color: AppColors.accentPurple,
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -199,7 +199,7 @@ class DocumentContentView extends StatelessWidget {
           children: [
             Text(
               'Section Details',
-              style: GoogleFonts.poppins(
+              style: AppFonts.heading(
                 color: AppColors.primaryText,
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -223,7 +223,7 @@ class DocumentContentView extends StatelessWidget {
             if (references.isNotEmpty) ...[
               Text(
                 'Sources Used',
-                style: GoogleFonts.poppins(
+                style: AppFonts.heading(
                   color: AppColors.primaryText,
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -258,7 +258,7 @@ class DocumentContentView extends StatelessWidget {
         children: [
           Text(
             title,
-            style: GoogleFonts.inter(
+            style: AppFonts.inter(
               color: AppColors.accentBlue,
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -279,7 +279,7 @@ class DocumentContentView extends StatelessWidget {
           width: 100,
           child: Text(
             label,
-            style: GoogleFonts.inter(
+            style: AppFonts.inter(
               color: AppColors.secondaryText,
               fontSize: 14,
               fontWeight: FontWeight.w500,
@@ -289,7 +289,7 @@ class DocumentContentView extends StatelessWidget {
         Expanded(
           child: Text(
             value,
-            style: GoogleFonts.inter(
+            style: AppFonts.inter(
               color: AppColors.primaryText,
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -326,7 +326,7 @@ class DocumentContentView extends StatelessWidget {
               Expanded(
                 child: Text(
                   'PMID: ${reference.pmid}',
-                  style: GoogleFonts.inter(
+                  style: AppFonts.inter(
                     color: AppColors.accentPurple,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -338,7 +338,7 @@ class DocumentContentView extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             reference.formattedReference,
-            style: GoogleFonts.inter(
+            style: AppFonts.inter(
               color: AppColors.primaryText,
               fontSize: 14,
               height: 1.4,
@@ -363,7 +363,7 @@ class DocumentContentView extends StatelessWidget {
                 },
                 child: Text(
                   'View Full Paper',
-                  style: GoogleFonts.inter(
+                  style: AppFonts.inter(
                     color: AppColors.accentBlue,
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -399,7 +399,7 @@ class DocumentContentView extends StatelessWidget {
           children: [
             Text(
               'References',
-              style: GoogleFonts.poppins(
+              style: AppFonts.heading(
                 color: AppColors.primaryText,
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -408,7 +408,7 @@ class DocumentContentView extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               'Select a section to view detailed information and sources',
-              style: GoogleFonts.inter(
+              style: AppFonts.inter(
                 color: AppColors.secondaryText,
                 fontSize: 14,
               ),
@@ -438,7 +438,7 @@ class DocumentContentView extends StatelessWidget {
         children: [
           Text(
             reference.formattedReference,
-            style: GoogleFonts.inter(
+            style: AppFonts.inter(
               color: AppColors.primaryText,
               fontSize: 14,
               height: 1.4,
@@ -447,7 +447,7 @@ class DocumentContentView extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             'PMID: ${reference.pmid}',
-            style: GoogleFonts.inter(
+            style: AppFonts.inter(
               color: AppColors.tertiaryText,
               fontSize: 12,
             ),
